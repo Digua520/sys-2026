@@ -1111,7 +1111,7 @@ const FRAGMENTS = {
 // Resolve a 2-level nested lookup with fallback.
 // e.g. pick('trench', `务实_${seg}`, `求稳_${seg}`) → falls back to mid/mid → hardcoded string
 const pick2 = (group, k1, k2, fallback) =>
-  FRAGMENTS[group]?.[k1]?.[k2] ?? FRAGMENTS[group]?.[k1]?.['求稳_mid'] ?? fallback;
+  FRAGMENTS[group]?.[k1]?.[k2] ?? fallback;
 
 const pick1 = (group, key, fallback) =>
   FRAGMENTS[group]?.[key] ?? fallback;
@@ -1685,8 +1685,8 @@ const RPGApp = {
 
       // Try DeepSeek streaming first, fallback to local
       await new Promise(resolve => {
-        let resolved = false;
-        const done = () => { if (!resolved) { resolved = true; resolve(); } };
+        let resolved = false, timeoutId = null;
+        const done = () => { if (!resolved) { resolved = true; clearTimeout(timeoutId); resolve(); } };
 
         if (DeepSeekClient.config.enabled) {
           DeepSeekClient.generateQ11ResponseStream(
@@ -1712,7 +1712,7 @@ const RPGApp = {
             }
           );
           // Timeout safety: if streaming hangs > 18s, bail
-          setTimeout(() => {
+          timeoutId = setTimeout(() => {
             if (!this.state.q11AIResponse) {
               const localR = generateLocalQ11Response(this.state.q11Text, roadmap.professionName, roadmap.primaryDim);
               if (localR) { this.state.q11AIResponse = localR; safeStore.set('q11_ai_rpg', localR); }
