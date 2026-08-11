@@ -1830,11 +1830,12 @@ const RPGApp = {
             <div class="q11-rpg-ai">
               <div class="ai-badge-rpg">🤖 AI 深度回应 ${DeepSeekClient.config.enabled ? '(DeepSeek)' : '(本地引擎)'}</div>
               <div class="rpg-panel-text">${this.state.q11AIResponse}</div>
+              ${DeepSeekClient.config.enabled ? `<p style="margin-top:0.75rem;"><button class="pixel-btn btn-gold" data-action="retry-ai" style="font-size:0.65rem;">🔄 重新生成 AI 回应</button></p>` : ''}
             </div>
           ` : `
             <div style="color:var(--text-muted);line-height:1.8;">
               <p>你的文字已被系统加密存档。有些话不需要回应，写下来本身就已经是释放。</p>
-              ${!DeepSeekClient.config.enabled ? `<p style="margin-top:0.5rem;font-size:0.8rem;">💡 提示：配置 <a href="#" data-action="toggle-api" style="color:var(--crt-blue);">DeepSeek API Key</a>（￥0.003/次），可获得针对你的Q11留白的个性化AI深度回应。</p>` : ''}
+              ${!DeepSeekClient.config.enabled ? `<p style="margin-top:0.5rem;font-size:0.8rem;">💡 提示：配置 <a href="#" data-action="toggle-api" style="color:var(--crt-blue);">DeepSeek API Key</a>（￥0.003/次），可获得针对你的Q11留白的个性化AI深度回应。</p>` : `<p style="margin-top:0.5rem;"><button class="pixel-btn btn-gold" data-action="retry-ai" style="font-size:0.7rem;">🔄 重新请求 AI 回应</button></p>`}
             </div>
           `}
         </div>
@@ -1956,19 +1957,9 @@ const RPGApp = {
   saveApiKey() {
     const input = document.getElementById('api-key-input-rpg');
     if (!input) return;
-    const key = input.value.trim();
-    DeepSeekClient.setApiKey(key);
-    if (key) {
-      // Show brief feedback
-      const panel = document.getElementById('api-panel-rpg');
-      if (panel) {
-        const status = panel.querySelector('p:last-of-type');
-        if (status) {
-          status.textContent = '✅ API Key 已保存！退出结果页重新生成即可使用 AI 回应。';
-          status.style.color = 'var(--crt-green)';
-        }
-      }
-    }
+    DeepSeekClient.setApiKey(input.value.trim());
+    // Re-render — the template checks DeepSeekClient.config.enabled
+    // and shows the correct status automatically
     this.renderResult();
   },
 
