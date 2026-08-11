@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="2026届毕业生社会化全景诊断系统·RPG副本版 - 像素风生存路书生成器">
+<meta name="robots" content="noindex, nofollow">
+<title>⚔ 2026届·社会化全景诊断 RPG副本版</title>
+
+<!-- Pixel Font: Press Start 2P for English UI chrome only -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   CSS VARIABLES — 8-bit Retro Palette
+   ============================================================ */
+:root {
+  --bg-deep:    #080812;
+  --bg-panel:   #111128;
+  --bg-card:    #181830;
+  --border-dim: #2e2e55;
+  --border-lit: #5555aa;
+  --border-hi:  #8888ff;
+  --text-main:  #e0ddf0;
+  --text-dim:   #9d9cc0;
+  --text-muted: #6e6d90;
+  --crt-green:  #33ff66;
+  --crt-blue:   #00ddff;
+  --crt-gold:   #ffd740;
+  --crt-red:    #ff5566;
+  --crt-pink:   #ff77bb;
+  --hp-green:   #33ee66;
+  --mp-blue:    #44aaff;
+  --str-orange: #ffaa44;
+  --bar-empty:  #1a1a38;
+
+  /* Pixel font — ONLY for English decorative text at legible sizes */
+  --font-pixel: 'Press Start 2P', 'Courier New', monospace;
+  /* UI font — crisp Chinese-readable font for buttons, labels, tabs */
+  --font-ui:    'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', 'Helvetica Neue', sans-serif;
+  /* Body font — for long-form Chinese text */
+  --font-body:  'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', 'Helvetica Neue', sans-serif;
+  /* Mono font — for numbers, codes, stats */
+  --font-mono:  'SF Mono', 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+
+  --px: 3px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 15px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-deep);
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ============================================================
+   CRT & SCANLINE OVERLAY
+   ============================================================ */
+.scanlines {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px,
+    transparent 1px, transparent 4px
+  );
+}
+.crt-vignette {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.35) 100%);
+}
+.crt-flicker {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9997;
+  background: transparent;
+  animation: crtFlicker 8s infinite;
+}
+@keyframes crtFlicker {
+  0%, 100% { background: transparent; }
+  0.5% { background: rgba(255,255,255,0.03); }
+  1% { background: transparent; }
+  50.5% { background: rgba(255,255,255,0.02); }
+  51% { background: transparent; }
+}
+
+/* ============================================================
+   PIXEL BORDER SYSTEM
+   ============================================================ */
+.pixel-box {
+  border: var(--px) solid;
+  border-top-color: var(--border-lit);
+  border-left-color: var(--border-lit);
+  border-right-color: var(--border-dim);
+  border-bottom-color: var(--border-dim);
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,0.05),
+    inset -1px -1px 0 rgba(0,0,0,0.3),
+    0 0 0 1px rgba(0,0,0,0.5);
+  background: var(--bg-panel);
+}
+
+.pixel-box-gold {
+  border-top-color: #cc9900;
+  border-left-color: #cc9900;
+  border-right-color: #664400;
+  border-bottom-color: #664400;
+  box-shadow:
+    inset 1px 1px 0 rgba(255,220,80,0.15),
+    inset -1px -1px 0 rgba(0,0,0,0.4),
+    0 0 8px rgba(255,200,0,0.1);
+}
+
+.pixel-box-red {
+  border-top-color: #cc3344;
+  border-left-color: #cc3344;
+  border-right-color: #661122;
+  border-bottom-color: #661122;
+  box-shadow:
+    inset 1px 1px 0 rgba(255,80,80,0.1),
+    inset -1px -1px 0 rgba(0,0,0,0.4),
+    0 0 8px rgba(255,50,50,0.08);
+}
+
+.pixel-box-green {
+  border-top-color: #33aa44;
+  border-left-color: #33aa44;
+  border-right-color: #115522;
+  border-bottom-color: #115522;
+  box-shadow:
+    inset 1px 1px 0 rgba(100,255,100,0.1),
+    inset -1px -1px 0 rgba(0,0,0,0.4),
+    0 0 8px rgba(50,255,100,0.08);
+}
+
+/* ============================================================
+   PIXEL BUTTON
+   ============================================================ */
+.pixel-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: var(--font-ui); font-size: 0.8rem; font-weight: 700;
+  padding: 10px 20px; cursor: pointer;
+  letter-spacing: 0.04em;
+  border: var(--px) solid;
+  border-top-color: var(--border-lit);
+  border-left-color: var(--border-lit);
+  border-right-color: var(--border-dim);
+  border-bottom-color: var(--border-dim);
+  background: var(--bg-card);
+  color: var(--text-main);
+  transition: none;
+  position: relative;
+  user-select: none;
+}
+.pixel-btn:hover {
+  border-top-color: #9b9bff;
+  border-left-color: #9b9bff;
+  color: #fff;
+  background: #202040;
+}
+.pixel-btn:active {
+  border-top-color: var(--border-dim);
+  border-left-color: var(--border-dim);
+  border-right-color: var(--border-lit);
+  border-bottom-color: var(--border-lit);
+  transform: translateY(1px);
+}
+.pixel-btn.btn-primary {
+  background: #2a2a80; color: var(--crt-blue);
+  border-top-color: #5555cc; border-left-color: #5555cc;
+  border-right-color: #1a1a55; border-bottom-color: #1a1a55;
+  box-shadow: 0 0 12px rgba(0,180,255,0.2);
+}
+.pixel-btn.btn-primary:hover {
+  background: #3333aa; color: #fff;
+  box-shadow: 0 0 20px rgba(0,200,255,0.35);
+}
+.pixel-btn.btn-gold {
+  background: #3a2a00; color: var(--crt-gold);
+  border-top-color: #aa8800; border-left-color: #aa8800;
+  border-right-color: #553300; border-bottom-color: #553300;
+}
+.pixel-btn.btn-gold:hover {
+  background: #553a00; color: #fff;
+  box-shadow: 0 0 16px rgba(255,200,0,0.25);
+}
+.pixel-btn.btn-danger {
+  background: #3a1018; color: var(--crt-red);
+  border-top-color: #993344; border-left-color: #993344;
+  border-right-color: #551122; border-bottom-color: #551122;
+}
+.pixel-btn:disabled {
+  opacity: 0.35; cursor: not-allowed; pointer-events: none;
+}
+
+/* ============================================================
+   TITLE SCREEN
+   ============================================================ */
+.title-screen {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 2rem; text-align: center;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(0,180,255,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(255,50,100,0.04) 0%, transparent 50%),
+    var(--bg-deep);
+}
+.title-logo {
+  font-family: var(--font-pixel); font-size: 1.7rem; line-height: 1.7;
+  color: var(--crt-blue); margin-bottom: 0.5rem;
+  text-shadow: 0 0 20px rgba(0,220,255,0.5), 0 0 40px rgba(0,220,255,0.2);
+  letter-spacing: 0.06em;
+}
+.title-sub {
+  font-family: var(--font-ui); font-size: 0.85rem; font-weight: 700;
+  color: var(--crt-gold); margin-bottom: 2rem;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 8px rgba(255,200,0,0.3);
+}
+.title-decor {
+  font-size: 0.9rem; color: var(--text-dim); margin-bottom: 2rem;
+  letter-spacing: 0.2em;
+  font-family: var(--font-mono);
+}
+.start-btn {
+  font-family: var(--font-pixel); font-size: 0.75rem;
+  padding: 14px 36px;
+  background: transparent;
+  color: var(--crt-green);
+  border: 3px solid var(--crt-green);
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  animation: blinkText 1.2s steps(1) infinite;
+  box-shadow: 0 0 16px rgba(50,255,100,0.25);
+  position: relative;
+}
+.start-btn:hover {
+  animation: none;
+  background: rgba(50,255,100,0.1);
+  box-shadow: 0 0 28px rgba(50,255,100,0.4);
+  color: #fff;
+}
+@keyframes blinkText {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+.title-footer {
+  margin-top: 3rem; font-size: 0.7rem; color: var(--text-muted);
+  font-family: var(--font-ui); letter-spacing: 0.04em;
+}
+.title-stars {
+  position: absolute; pointer-events: none;
+  font-family: var(--font-mono); font-size: 0.6rem;
+  color: rgba(255,255,255,0.12);
+}
+
+/* ============================================================
+   QUESTION SCREEN
+   ============================================================ */
+.question-screen {
+  max-width: 680px; margin: 0 auto; padding: 1rem 1rem 4rem;
+}
+
+/* Progress */
+.pixel-progress {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem;
+}
+.progress-track {
+  flex: 1; height: 10px; background: var(--bar-empty);
+  border: 2px solid var(--border-dim);
+  position: relative; overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--crt-green) 0px, var(--crt-green) 8px, #1a5530 8px, #1a5530 10px);
+  transition: width 0.3s steps(10);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.progress-label {
+  font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* RPG Dialog Box */
+.rpg-dialog {
+  position: relative; padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.dialog-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;
+}
+.dialog-badge {
+  font-family: var(--font-pixel); font-size: 0.55rem;
+  padding: 4px 10px;
+  border: 2px solid var(--crt-blue);
+  color: var(--crt-blue);
+  background: rgba(0,200,255,0.08);
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 6px rgba(0,200,255,0.3);
+}
+.dialog-badge.boss {
+  border-color: var(--crt-red); color: var(--crt-red);
+  background: rgba(255,60,60,0.08);
+  animation: badgePulse 2s infinite;
+}
+@keyframes badgePulse {
+  0%,100% { box-shadow: 0 0 4px rgba(255,50,50,0.2); }
+  50% { box-shadow: 0 0 12px rgba(255,50,50,0.5); }
+}
+.dialog-title {
+  font-family: var(--font-ui); font-size: 0.95rem; font-weight: 700;
+  color: var(--text-main); line-height: 1.5;
+}
+.dialog-scenario {
+  position: relative;
+  padding: 1rem 1.3rem;
+  background: rgba(0,0,0,0.35);
+  border-left: 3px solid var(--border-lit);
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem; line-height: 1.9; color: var(--text-dim);
+}
+.dialog-scenario .cursor-blink {
+  display: inline-block; width: 8px; height: 14px; background: var(--crt-green);
+  vertical-align: middle; margin-left: 2px;
+  animation: blinkText 0.7s steps(1) infinite;
+}
+.dialog-pointer {
+  font-family: var(--font-pixel); font-size: 0.7rem; color: var(--crt-green);
+  animation: blinkText 0.9s steps(1) infinite;
+}
+.system-note-rpg {
+  padding: 0.8rem 1.1rem;
+  background: rgba(255,200,0,0.04);
+  border: 1px solid rgba(255,200,0,0.2);
+  font-size: 0.82rem; color: #c0a860;
+  line-height: 1.8;
+}
+.system-note-rpg::before {
+  content: '💡 系统点拨';
+  display: block;
+  font-family: var(--font-ui); font-size: 0.65rem; font-weight: 700;
+  color: var(--crt-gold); margin-bottom: 0.4rem;
+  letter-spacing: 0.04em;
+}
+
+/* RPG Battle Command Options */
+.rpg-commands {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.rpg-command {
+  display: flex; align-items: stretch; gap: 0;
+  cursor: pointer;
+  border: 2px solid var(--border-dim);
+  background: var(--bg-card);
+  transition: all 0.06s;
+  position: relative;
+}
+.rpg-command:hover {
+  border-color: var(--border-lit);
+  background: #202040;
+}
+.rpg-command.selected {
+  border-color: var(--crt-blue);
+  background: rgba(0,200,255,0.06);
+  box-shadow: 0 0 14px rgba(0,200,255,0.12);
+}
+.rpg-command .cmd-marker {
+  flex-shrink: 0; width: 44px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700;
+  color: var(--text-dim);
+  background: rgba(0,0,0,0.3);
+  border-right: 2px solid var(--border-dim);
+}
+.rpg-command.selected .cmd-marker {
+  color: var(--crt-blue);
+  background: rgba(0,200,255,0.12);
+  border-right-color: var(--crt-blue);
+}
+.rpg-command .cmd-body { flex: 1; padding: 0.9rem 1.1rem; }
+.cmd-label {
+  font-weight: 700; font-size: 0.9rem; margin-bottom: 0.25rem;
+  color: var(--text-main);
+}
+.cmd-desc {
+  font-size: 0.8rem; color: var(--text-dim); line-height: 1.65;
+}
+.rpg-command .cmd-selector {
+  display: none; position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
+  font-family: var(--font-pixel); font-size: 0.55rem; color: var(--crt-green);
+}
+.rpg-command.selected .cmd-selector { display: block; }
+
+/* Sub-question label */
+.sub-q-label {
+  font-family: var(--font-ui); font-size: 0.7rem; font-weight: 700;
+  color: var(--crt-gold); margin-bottom: 0.5rem;
+  letter-spacing: 0.03em;
+}
+
+/* Navigation */
+.rpg-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 1.5rem; gap: 0.75rem;
+}
+.rpg-nav .spacer { flex: 1; }
+
+/* ============================================================
+   Q11 SOUL BLANK
+   ============================================================ */
+.soul-scroll {
+  position: relative; padding: 1.5rem;
+}
+.soul-scroll textarea {
+  width: 100%; min-height: 140px; padding: 1rem;
+  background: rgba(0,0,0,0.4);
+  border: 2px solid var(--border-dim);
+  color: var(--crt-gold); font-family: var(--font-body);
+  font-size: 0.9rem; line-height: 1.9; resize: vertical;
+  outline: none;
+}
+.soul-scroll textarea:focus {
+  border-color: var(--crt-gold);
+  box-shadow: 0 0 16px rgba(255,200,0,0.12);
+}
+.soul-scroll textarea::placeholder { color: var(--text-muted); }
+.soul-scroll-footer {
+  display: flex; justify-content: space-between; margin-top: 0.5rem;
+  font-family: var(--font-ui); font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   LOADING SCREEN
+   ============================================================ */
+.loading-screen {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; text-align: center; padding: 2rem;
+}
+.loading-spinner {
+  width: 64px; height: 64px;
+  border: 4px solid var(--border-dim);
+  position: relative;
+  animation: spinBlock 0.6s steps(4) infinite;
+}
+@keyframes spinBlock {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.loading-spinner::after {
+  content: '';
+  position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
+  border: 4px solid transparent;
+  border-top-color: var(--crt-blue);
+  border-right-color: var(--crt-blue);
+}
+.loading-text {
+  font-family: var(--font-pixel); font-size: 0.7rem; color: var(--crt-blue);
+  margin-top: 1.5rem; letter-spacing: 0.05em;
+  text-shadow: 0 0 10px rgba(0,200,255,0.4);
+  animation: blinkText 0.8s steps(1) infinite;
+}
+.loading-sub {
+  font-family: var(--font-ui); font-size: 0.7rem; color: var(--text-dim);
+  margin-top: 0.5rem;
+}
+
+/* ============================================================
+   RESULT SCREEN — Character Sheet
+   ============================================================ */
+.result-screen {
+  max-width: 700px; margin: 0 auto; padding: 1rem 1rem 3rem;
+}
+
+/* Character Header */
+.char-header {
+  text-align: center; padding: 1.5rem; margin-bottom: 1.5rem;
+}
+.char-level {
+  font-family: var(--font-pixel); font-size: 0.6rem;
+  color: var(--crt-blue); letter-spacing: 0.08em; margin-bottom: 0.5rem;
+  text-shadow: 0 0 8px rgba(0,200,255,0.35);
+}
+.char-name {
+  font-family: var(--font-pixel); font-size: 0.9rem;
+  color: var(--text-main); line-height: 1.6; margin-bottom: 0.3rem;
+}
+.char-class {
+  font-family: var(--font-ui); font-size: 0.75rem; font-weight: 700;
+  color: var(--crt-gold); letter-spacing: 0.05em;
+  text-shadow: 0 0 6px rgba(255,200,0,0.3);
+}
+.char-match {
+  display: inline-block; margin-top: 0.5rem;
+  font-family: var(--font-pixel); font-size: 0.5rem; padding: 4px 12px;
+  letter-spacing: 0.05em;
+}
+.match-excellent { color: var(--crt-green); border: 2px solid var(--crt-green); text-shadow: 0 0 6px rgba(50,255,100,0.35); }
+.match-good { color: var(--crt-gold); border: 2px solid var(--crt-gold); text-shadow: 0 0 6px rgba(255,200,0,0.3); }
+.match-ok { color: var(--text-dim); border: 2px solid var(--text-dim); }
+
+/* Stat Sheet */
+.stat-sheet { padding: 1.2rem 1.5rem; margin-bottom: 1.5rem; }
+.stat-sheet-title {
+  font-family: var(--font-pixel); font-size: 0.6rem; color: var(--crt-blue);
+  margin-bottom: 1rem; letter-spacing: 0.06em;
+  padding-bottom: 0.6rem; text-shadow: 0 0 6px rgba(0,200,255,0.3);
+  border-bottom: 2px solid var(--border-dim);
+}
+.stat-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 0.65rem;
+}
+.stat-icon {
+  font-family: var(--font-mono); font-size: 0.6rem; width: 44px;
+  flex-shrink: 0; color: var(--text-dim); font-weight: 700;
+}
+.stat-bar-wrap {
+  flex: 1; height: 16px; background: var(--bar-empty);
+  border: 1px solid var(--border-dim); position: relative; overflow: hidden;
+}
+.stat-bar-fill {
+  height: 100%; transition: width 1s steps(20);
+  /* Pixel segmentation via repeating gradient */
+  background-size: 8px 100%;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.2);
+}
+.stat-bar-fill.hp { background-image: repeating-linear-gradient(90deg, #44ee66 0px, #44ee66 6px, #228833 6px, #228833 8px); }
+.stat-bar-fill.mp { background-image: repeating-linear-gradient(90deg, #44aaff 0px, #44aaff 6px, #225588 6px, #225588 8px); }
+.stat-bar-fill.str { background-image: repeating-linear-gradient(90deg, #ff9944 0px, #ff9944 6px, #884422 6px, #884422 8px); }
+.stat-bar-fill.def { background-image: repeating-linear-gradient(90deg, #88ccff 0px, #88ccff 6px, #446688 6px, #446688 8px); }
+.stat-bar-fill.agi { background-image: repeating-linear-gradient(90deg, #ffdd44 0px, #ffdd44 6px, #887722 6px, #887722 8px); }
+.stat-bar-fill.int { background-image: repeating-linear-gradient(90deg, #ff66aa 0px, #ff66aa 6px, #883355 6px, #883355 8px); }
+.stat-bar-fill.tec { background-image: repeating-linear-gradient(90deg, #44ddcc 0px, #44ddcc 6px, #226655 6px, #226655 8px); }
+.stat-bar-fill.crt { background-image: repeating-linear-gradient(90deg, #ff4444 0px, #ff4444 6px, #882222 6px, #882222 8px); }
+.stat-val {
+  font-family: var(--font-mono); font-size: 0.6rem; width: 42px;
+  text-align: right; color: var(--text-dim); flex-shrink: 0; font-weight: 700;
+}
+
+/* RPG Menu Tabs */
+.rpg-tabs {
+  display: flex; gap: 4px; margin-bottom: 1rem; flex-wrap: wrap;
+}
+.rpg-tab {
+  font-family: var(--font-ui); font-size: 0.7rem; font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer; letter-spacing: 0.03em;
+  border: 2px solid var(--border-dim); background: var(--bg-card);
+  color: var(--text-dim);
+}
+.rpg-tab:hover { border-color: var(--border-lit); color: var(--text-main); }
+.rpg-tab.active {
+  border-color: var(--crt-blue); color: var(--crt-blue);
+  background: rgba(0,200,255,0.06);
+  text-shadow: 0 0 6px rgba(0,200,255,0.3);
+}
+
+/* RPG Panel content */
+.rpg-panel { padding: 1.2rem 1.5rem; }
+.rpg-panel-title {
+  font-family: var(--font-pixel); font-size: 0.58rem; color: var(--crt-gold);
+  margin-bottom: 0.8rem; letter-spacing: 0.05em;
+  text-shadow: 0 0 6px rgba(255,200,0,0.25);
+}
+.rpg-panel-text {
+  font-size: 0.9rem; line-height: 1.95; color: var(--text-dim);
+}
+.rpg-panel-text strong { color: var(--text-main); }
+
+/* Action list in panel */
+.action-list-rpg { display: flex; flex-direction: column; gap: 1rem; }
+.action-item-rpg { display: flex; gap: 10px; }
+.action-num {
+  flex-shrink: 0; width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700;
+  background: rgba(0,200,255,0.1); color: var(--crt-blue);
+  border: 2px solid rgba(0,200,255,0.3);
+}
+.action-item-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem; color: var(--text-main); }
+.action-item-body { font-size: 0.82rem; color: var(--text-dim); line-height: 1.75; }
+
+/* Q11 in result */
+.q11-rpg-section { padding: 1.2rem 1.5rem; }
+.q11-rpg-quote {
+  padding: 1rem 1.2rem; background: rgba(0,0,0,0.3);
+  border-left: 3px solid var(--crt-gold);
+  font-style: italic; color: var(--text-dim); margin-bottom: 1rem;
+  line-height: 1.9;
+}
+.q11-rpg-ai {
+  padding: 1rem 1.2rem;
+  background: rgba(255,200,0,0.04);
+  border: 2px solid rgba(255,200,0,0.2);
+  line-height: 1.9;
+}
+.ai-badge-rpg {
+  font-family: var(--font-ui); font-size: 0.6rem; font-weight: 700;
+  color: var(--crt-gold); margin-bottom: 0.5rem; letter-spacing: 0.04em;
+}
+
+/* Result actions */
+.result-actions-rpg {
+  display: flex; justify-content: center; gap: 10px; margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+/* API panel */
+.api-panel-rpg {
+  margin-top: 1rem; padding: 1.2rem;
+  display: none;
+}
+.api-panel-rpg input {
+  flex: 1; padding: 8px 12px; font-family: var(--font-mono); font-size: 0.65rem;
+  background: rgba(0,0,0,0.4); border: 2px solid var(--border-dim);
+  color: var(--crt-green);
+}
+.api-panel-rpg input:focus { border-color: var(--crt-blue); outline: none; }
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes screenShake {
+  0%,100% { transform: translate(0,0); }
+  10% { transform: translate(-2px,1px); }
+  20% { transform: translate(2px,-1px); }
+  30% { transform: translate(-1px,-1px); }
+  40% { transform: translate(1px,1px); }
+  50% { transform: translate(0,0); }
+}
+.shake { animation: screenShake 0.3s ease-out; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeInUp 0.3s ease-out; }
+
+@keyframes statReveal {
+  from { width: 0% !important; }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 600px) {
+  html { font-size: 14px; }
+  .title-logo { font-size: 1.1rem; }
+  .title-sub { font-size: 0.7rem; }
+  .start-btn { font-size: 0.6rem; padding: 10px 24px; }
+  .char-name { font-size: 0.65rem; }
+  .dialog-badge { font-size: 0.48rem; }
+  .rpg-command .cmd-marker { width: 38px; font-size: 0.65rem; }
+  .rpg-tab { font-size: 0.6rem; padding: 6px 10px; }
+  .rpg-nav { flex-direction: column; }
+  .rpg-nav .pixel-btn { width: 100%; justify-content: center; }
+  .stat-row { gap: 4px; }
+  .stat-icon { width: 34px; font-size: 0.5rem; }
+  .stat-val { width: 34px; font-size: 0.5rem; }
+}
+
+/* Accessibility — disable animations for users with motion sensitivity */
+@media (prefers-reduced-motion: reduce) {
+  .scanlines,
+  .crt-flicker,
+  .start-btn,
+  .dialog-badge.boss,
+  .loading-spinner,
+  .loading-spinner::after,
+  .cursor-blink,
+  .dialog-pointer,
+  .loading-text,
+  .generating-spinner,
+  .fade-in {
+    animation: none !important;
+    transition: none !important;
+  }
+  .start-btn { opacity: 1; }
+  .loading-text { opacity: 1; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--border-dim); }
+::-webkit-scrollbar-thumb:hover { background: var(--border-lit); }
+</style>
+</head>
+<body>
+
+<!-- CRT Overlays -->
+<div class="scanlines"></div>
+<div class="crt-vignette"></div>
+<div class="crt-flicker"></div>
+
+<!-- Main App Mount -->
+<div id="app"></div>
+
+<script>
+// ============================================================
+//  2026届毕业生 · 社会化全景诊断系统 · RPG副本版
+//  Pixel RPG Edition — All-in-one HTML/CSS/JS
+// ============================================================
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  UTILITIES — Defensive primitives                       ║
+// ╚══════════════════════════════════════════════════════════╝
+
+/** Safe sessionStorage wrapper — never throws in private browsing */
+const safeStore = {
+  get(key) {
+    try { return sessionStorage.getItem(key); } catch { return null; }
+  },
+  set(key, value) {
+    try { sessionStorage.setItem(key, value); return true; } catch { return false; }
+  },
+  remove(key) {
+    try { sessionStorage.removeItem(key); } catch {}
+  },
+  clear() {
+    try { sessionStorage.clear(); } catch {}
+  }
+};
+
+/** Safe localStorage — for API key persistence */
+const safeLocal = {
+  get(key) {
+    try { return localStorage.getItem(key); } catch { return null; }
+  },
+  set(key, value) {
+    try { localStorage.setItem(key, value); return true; } catch { return false; }
+  },
+  remove(key) {
+    try { localStorage.removeItem(key); } catch {}
+  }
+};
+
+/**
+ * fetch with AbortController timeout.
+ * Resolves with Response or rejects with 'Request timed out'.
+ */
+async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const resp = await fetch(url, { ...options, signal: controller.signal });
+    return resp;
+  } catch (e) {
+    if (e.name === 'AbortError') throw new Error(`Request timed out after ${timeoutMs}ms`);
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// ── QUESTION DATA ──────────────────────────────────────────
+const QUESTIONS = [
+  {
+    id: 1, title: '定位与归宿',
+    scenario: '读了十几年书，走出校门的第一步，先盘明白自己手里的底牌，以及在这个时代里的坐标。',
+    subQuestions: [
+      {
+        id: 'q1a', text: '我从哪里来？',
+        options: [
+          { value:'A', label:'带着一身书生气而来', desc:'满脑子专业、大厂、写字楼，觉得必须找一份"配得上学历"的工作。' },
+          { value:'B', label:'带着迷茫和退路而来', desc:'家里能兜底或老家有出路，考公考编是第一选择，心里始终有点不甘。' },
+          { value:'C', label:'带着生存危机而来', desc:'存款撑不过三个月，没有背景，必须立刻拿到一份能养活自己的薪水。' }
+        ]
+      },
+      {
+        id: 'q1b', text: '我到哪里去？',
+        options: [
+          { value:'A', label:'逆流而上，去最卷的地方淘金', desc:'哪怕内卷、哪怕面临被AI替代的风险，也要去一线城市、泛互联网或金融高地赌一把。' },
+          { value:'B', label:'顺应国家趋势，去实体经济', desc:'愿意下沉到二三线、实体工厂、数字化传统产业，跟着国家宏观指挥棒拿长远饭碗。' },
+          { value:'C', label:'寻找绝对确定性，筑起防御高墙', desc:'全心全意备考体制内、国企、央企，只想在国家的体制巨轮上当稳定的螺丝钉。' }
+        ]
+      }
+    ],
+    note: '不要让社会为你的学历买单。去最卷的地方就要扔掉清高；去实体经济不是下沉，而是利用AI提效进行反杀的顶级护城河。'
+  },
+  {
+    id: 2, title: '试用期的"生存暗战"',
+    scenario: '面试时，创业公司老板深情款款地对你说："我们公司踩中了风口，未来不可限量。年轻人刚毕业不要计较眼前的三五百块钱和社保，等公司拿到下一轮融资，少不了你的原始股！现在辛苦点，我们一起把蛋糕做大。"',
+    options: [
+      { value:'A', label:'满腔热血，倾力奉献', desc:'觉得老板懂大局，不交社保也认了，年轻人吃苦学东西、拿期权最重要。' },
+      { value:'B', label:'唯唯诺诺，敢怒不敢言', desc:'知道大饼有毒、不交社保违法，但害怕一反抗连这个试用机会都没了，默默忍受。' },
+      { value:'C', label:'表面顺从，底线清晰，依规留痕', desc:'嘴上感谢宏大愿景，心里跟明镜一样。合同必须签，每天的工作日志、打卡记录和微信工作安排默默截图留存。' }
+    ],
+    note: '国家提倡的高质量发展核心就是合规。"表面规范、内心清醒、暗中留痕"，不和老板硬刚，但用劳动法将自己武装到牙齿。'
+  },
+  {
+    id: 3, title: '职场显微镜下的"眼力见"与"隐忍术"',
+    scenario: '部门周会上，你老大和另一个业务主管因为项目责任问题表面客气、暗中推诿。你老大突然转过头微笑着问你："小张，这个项目你刚接手两周，平时也跟得挺紧，你觉得这事到底是谁的责任？没事，你是新人，大胆说真话。"',
+    options: [
+      { value:'A', label:'直言不讳，当正义使者', desc:'觉得老大让我说真话，直接秉公办事，当场指出对方主管的不是。' },
+      { value:'B', label:'唯唯诺诺，当场和稀泥', desc:'结结巴巴说"我不知道，我都听领导的"，让两个领导都觉得你烂泥扶不上墙。' },
+      { value:'C', label:'战术隐忍，借力打力', desc:'明白老大在拿你当枪使。迅速隐藏锋芒，不谈人脉恩怨，把球踢回给规则或公司标准流程（SOP）。' }
+    ],
+    note: '大佬让你说真话，是想借你的嘴打人。用最温和的语气，说最无懈可击的流程合规话，绝不当任何人的政治炮灰。'
+  },
+  {
+    id: 4, title: '第一次入职的"急性排异期"',
+    scenario: '入职第二个月收到工资，扣完五险一金和房租只剩三千。天天加班到八点，干的都是贴发票、改PPT、跑腿的杂活，还要听主管指手画脚。你躺在出租屋床上觉得付出和收入严重不成正比，甚至怀疑人生。',
+    options: [
+      { value:'A', label:'冲动裸辞，及时止损', desc:'明天一早把辞职信甩在经理脸上，绝不受这份窝囊气。' },
+      { value:'B', label:'精神内耗，疯狂摸鱼', desc:'钱给得少就不干活，在厕所蹲半小时，消极对抗，满脸怨气。' },
+      { value:'C', label:'战术下沉，暗中"卷款"', desc:'克制冲动，降维算账。把公司当成带薪培训班，疯狂偷学其商业逻辑、上下游资源和生存技能，榨干后再精准跳槽。' }
+    ],
+    note: '裸辞代价极高，不要用别人的错误惩罚自己的银行卡；摸鱼伤害的是自己的黄金积累期。把主管当成游戏NPC，剥离情绪，暗中"卷款"技能资产。'
+  },
+  {
+    id: 5, title: '面包、软肋，与压在你背上的山',
+    scenario: '深夜你刷着低薪的招聘软件，微信里父母又发来长语音："隔壁王叔家的孩子考上编/进大厂了，你那边怎么样了？钱够花吗？别太挑了……"现实工资与家人面子、心理预期的巨大拉扯让你窒息。',
+    options: [
+      { value:'A', label:'纯粹的生存危机', desc:'没有家庭负担，父母不给压力，只要工资管够房租和三餐，干什么底层活都行，先活下来。' },
+      { value:'B', label:'夹板气与精神内耗', desc:'父母期望高，自己也想衣锦还乡。找不到高薪工作又不想让父母失望，每天在出租屋痛苦内耗。' },
+      { value:'C', label:'理性的"亲情防火墙"构建者', desc:'承认压力，但拒绝被面子绑架。先找务实工作解决断粮危机，用"经济独立"和阶段性成果来安抚家人的焦虑。' }
+    ],
+    note: '父母的焦虑源于对时代不确定性的恐惧。对付家庭压力最好的办法就是"经济独立"。成年人的孝顺，从不让父母为你的下一顿饭发愁开始。'
+  },
+  {
+    id: 6, title: '专业错位与"AI焦虑"的双重夹击',
+    scenario: '大学学了四年，毕业发现专业不对口，或者行业快被大模型端了。你投递的初级岗位，企业纷纷在招聘要求里加上了一句："熟练掌握AI工具（如ChatGPT/Midjourney）者优先"。',
+    options: [
+      { value:'A', label:'时代弃儿感，陷入绝望', desc:'觉得自己太倒霉碰上技术变革，专业用不上，大企业进不去，彻底躺平逃避。' },
+      { value:'B', label:'机械式对抗，硬着头皮卷', desc:'觉得AI都是噱头，继续海投传统的、机械重复的初级岗位，和同龄人卷低薪。' },
+      { value:'C', label:'降维打击，把AI变成"外挂"', desc:'花一周时间自学大模型提示词和办公自动化。用AI把效率提升10倍，去传统实体产业里降维打击那些不会用AI的老员工。' }
+    ],
+    note: 'AI不会淘汰你，先学会用AI的同龄人才会淘汰你。专业不对口意味着没有包袱。跟着国家产业数字化的风口，把AI当成你的青龙偃月刀。'
+  },
+  {
+    id: 7, title: '大学四年的"温水煮青蛙"与毕业后的"账单"',
+    scenario: '面试官翻着你那张只有"英语四级"和"计算机二级"的苍白简历，冷不丁地问："你在大学四年，真正核心掌握的、能帮公司解决问题的技能是什么？你未来能为我们创造什么价值？"',
+    options: [
+      { value:'A', label:'悔恨交加的"受骗者"', desc:'脑子里一片空白，极度后悔大学四年的放纵和轻松，恨自己为什么没有早点醒悟。' },
+      { value:'B', label:'愤世嫉俗的"甩锅侠"', desc:'觉得是学校课程太垃圾、与市场脱节，横竖都是社会的错，自己只是受害者。' },
+      { value:'C', label:'停止精神内耗的清醒者', desc:'承认大学虚度了，后悔没用。既然现在是一张白纸，就把社会当成真正的大学，从基层务实岗位干起。' }
+    ],
+    note: '你在大学里借走的轻松，社会在毕业时会加倍收回利息。不要为证书焦虑，企业现在更看重你能不能听懂人话、能不能吃苦、能不能上手新工具。'
+  },
+  {
+    id: 8, title: '如果大学四年后注定后悔，你的解药在哪里？',
+    scenario: '站在后悔的十字路口，大学的轻松变成了现在的沉重。面对接下来的路，你准备怎么做，才能不让五年后的自己再次后悔今天的懦弱？',
+    options: [
+      { value:'A', label:'活在过去的阴影里，持续观望', desc:'害怕再次选错、技能不足而不敢投简历，天天看躺平文学，丧失行动力。' },
+      { value:'B', label:'盲目跟风，制造"虚假的努力"', desc:'用盲目考研、考公、考一堆用不上的证，来逃避进入社会的残酷博弈。' },
+      { value:'C', label:'正视自己，低姿态入局', desc:'丢掉无谓的清高。哪怕从月薪3500的实体小企业助理做起，在真实的商业社会里疯狂补课。' }
+    ],
+    note: '后悔是弱者的麻药。这个世界是一个巨大的草台班子，高高在上的面试官四年前也是混过来的。你需要的是"老子必须要活下去"的狼性，迈出第一步你就干掉了80%的内耗者。'
+  },
+  {
+    id: 9, title: '资源冲击下的"情感与信仰"大盘点',
+    scenario: '毕业第一年，你发现家里帮不上忙，谈了四年的恋爱因为买房彩礼出现裂痕，努力很久的项目被有背景的新人轻松顶替。面对资源和阶层的降维打击，你该如何处理这些情感？',
+    options: [
+      { value:'A', label:'彻底认命，全面崩塌', desc:'觉得家底薄再努力也追不上别人。开始抱怨父母、对爱情绝望、对社会愤恨。' },
+      { value:'B', label:'盲目死撑，四处树敌', desc:'拒绝承认差距，为了面子强行借贷或透支身体，把父母的关心当压力，整个人变成干柴。' },
+      { value:'C', label:'战术性隐忍，重构护城河', desc:'承认家底薄的现实（战术认命），但绝不放弃进化（战略不认命）。把亲情、爱情、家国重新编码变成防御武器。' }
+    ],
+    note: '亲情是避风港，不要抱怨父母，经济独立是最大的孝顺；爱情是"搞钱合伙人"关系，不能同甘共苦请及时止损；家国情怀是底层反杀的最大外挂。'
+  },
+  {
+    id: 10, title: '终极考卷——解构"考核"，对自己"自私"一点',
+    scenario: '走出校门，试卷消失了。出租屋马桶坏了、公司方案被驳回、卡里余额告急、如何处理一段关系……这些全是无法逃避的社会化大考。面对余生没有标准答案的考核，你打算怎么对待自己？',
+    options: [
+      { value:'A', label:'巨婴式等待，抗拒交卷', desc:'觉得只有教室里才叫学习，面对生活的一地鸡毛只会感到委屈，总觉得自己没准备好。' },
+      { value:'B', label:'自残式迎合，透支自己', desc:'为了领导的夸奖、家里的面子、朋友的眼光不断委屈自己，把自己卷到崩溃却一无所有。' },
+      { value:'C', label:'清醒的"自私主义者"', desc:'彻底打碎对学校的执念。把公司当带薪研究机构，优先喂饱自己的灵魂，给自己最好的精神和身体保障，狠狠活下去。' }
+    ],
+    note: '社会的考核只看你的资源是变多了、感情生活是给你力量还是内耗、阅历是让你清醒还是油腻。对自己"自私一点"，是建立坚不可摧的个人内核。你才是你这辈子唯一最值得投资的资产！'
+  }
+];
+
+const Q11 = {
+  id: 11, title: '灵魂留白',
+  scenario: '10道灵魂拷问，一通成人世界的生存体检。你或许被戳中了痛点，或许被骂醒了，或许终于找到了和这个巨大草台班子世界相处的解药。',
+  prompt: '隐私的加密大门已经为你锁好。请在这里，写下你此时此刻最真实的感触、你对过去的释怀、或者你接下来哪怕最微小的一个行动计划……',
+  placeholder: '如果不想写，也可以直接跳过。没关系，做你自己就好，你值得。'
+};
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  PHASE 1: 5-DIMENSION VECTOR SCORING                   ║
+// ║  Each option → [务实,求稳,破局,技术,人情] delta        ║
+// ╚══════════════════════════════════════════════════════════╝
+const VECTORS = {
+  'q1a': { A:[-2, 0, 0, 1,-1], B:[ 0, 2,-1, 0, 0], C:[ 3, 0, 1, 0, 1] },
+  'q1b': { A:[-1,-2, 2, 1, 0], B:[ 2, 0, 1, 2, 1], C:[ 0, 3,-1,-1, 0] },
+  'q2':  { A:[-2,-1, 1, 0,-2], B:[ 0, 1,-1, 0, 0], C:[ 2, 1, 1, 0, 3] },
+  'q3':  { A:[-1, 0, 0, 0,-3], B:[ 0, 1,-1, 0,-1], C:[ 1, 1, 1, 0, 3] },
+  'q4':  { A:[-2,-2, 1, 0,-1], B:[-1, 0,-2, 0,-1], C:[ 3, 1, 2, 1, 1] },
+  'q5':  { A:[ 2, 1, 1, 0, 0], B:[-1, 1,-1, 0,-2], C:[ 2, 1, 1, 0, 3] },
+  'q6':  { A:[-1, 0,-2,-3,-1], B:[ 0, 1, 0,-1, 0], C:[ 2, 0, 3, 5, 1] },
+  'q7':  { A:[ 1, 0, 0, 0, 1], B:[-1, 0,-1, 0,-3], C:[ 2, 0, 1, 1, 2] },
+  'q8':  { A:[-1, 1,-3,-1, 0], B:[ 0, 2,-1, 0, 0], C:[ 3, 0, 3, 1, 1] },
+  'q9':  { A:[-2, 0,-2, 0,-3], B:[ 0, 0, 1, 0,-2], C:[ 2, 1, 2, 0, 4] },
+  'q10': { A:[-2, 0,-3,-1,-1], B:[ 0, 1, 0, 0,-2], C:[ 3, 0, 2, 1, 2] },
+};
+
+// Pre-compute theoretical min/max for each dimension from VECTORS.
+// Cached at module load — never changes at runtime.
+const DIM_KEYS = ['务实','求稳','破局','技术','人情'];
+const VECTOR_BOUNDS = (() => {
+  const mins = Object.fromEntries(DIM_KEYS.map(k => [k, 0]));
+  const maxs = Object.fromEntries(DIM_KEYS.map(k => [k, 0]));
+  for (const opts of Object.values(VECTORS)) {
+    for (const vec of Object.values(opts)) {
+      DIM_KEYS.forEach((d, i) => {
+        if (vec[i] < 0) mins[d] += vec[i];
+        if (vec[i] > 0) maxs[d] += vec[i];
+      });
+    }
+  }
+  return { mins, maxs };
+})();
+
+function compute5Dims(answers) {
+  const raw = Object.fromEntries(DIM_KEYS.map(k => [k, 0]));
+  for (const [qid, opts] of Object.entries(VECTORS)) {
+    const ans = answers[qid];
+    if (!ans || !opts[ans]) continue;
+    const v = opts[ans];
+    DIM_KEYS.forEach((d, i) => { raw[d] += v[i]; });
+  }
+
+  // Normalize to 0–100 using pre-computed dynamic bounds.
+  // If a user's score falls outside the theoretical range
+  // (e.g. unanswered questions), clamp without hard cut-off.
+  const norm = {};
+  for (const d of DIM_KEYS) {
+    const range = VECTOR_BOUNDS.maxs[d] - VECTOR_BOUNDS.mins[d];
+    norm[d] = range > 0
+      ? Math.round(Math.max(0, Math.min(100, (raw[d] - VECTOR_BOUNDS.mins[d]) / range * 100)))
+      : 50;
+  }
+  return { raw, norm };
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  PHASE 2: PRIMARY-SECONDARY PROFESSION MATRIX          ║
+// ║  5 × 4 = 20 unique professions                         ║
+// ╚══════════════════════════════════════════════════════════╝
+const PROFESSION_MATRIX = {
+  '务实': {
+    '求稳': { name:'生存建筑师', rpgClass:'务实·求稳 系', level:42, desc:'在稳定的框架内，一砖一瓦搭建生存基础' },
+    '破局': { name:'极限翻盘者', rpgClass:'务实·破局 系', level:55, desc:'从最底层杀出，每一分钱都变成翻盘的筹码' },
+    '技术': { name:'数字蓝领',     rpgClass:'务实·技术 系', level:60, desc:'用最前沿的工具，做最接地气的事' },
+    '人情': { name:'市井战略家',   rpgClass:'务实·人情 系', level:50, desc:'懂规则、会做人、能搞钱——街头智慧拉满' },
+  },
+  '求稳': {
+    '务实': { name:'体制织网者',   rpgClass:'求稳·务实 系', level:40, desc:'考编是路径，生存是底线，两条腿走路的聪明人' },
+    '破局': { name:'秩序重构者',   rpgClass:'求稳·破局 系', level:48, desc:'在体制的框架内，悄悄地推动变革' },
+    '技术': { name:'AI守成者',     rpgClass:'求稳·技术 系', level:52, desc:'用AI在稳定体系内建立不可替代的护城河' },
+    '人情': { name:'关系护甲师',   rpgClass:'求稳·人情 系', level:44, desc:'靠情商和人脉在复杂组织里构建防护网' },
+  },
+  '破局': {
+    '务实': { name:'狼性创业者',   rpgClass:'破局·务实 系', level:62, desc:'低姿态入局，高姿态翻盘——先活下来，再赢' },
+    '求稳': { name:'暗流推手',     rpgClass:'破局·求稳 系', level:54, desc:'在看似平静的水面下，悄然改变游戏规则' },
+    '技术': { name:'赛博拓荒者',   rpgClass:'破局·技术 系', level:78, desc:'AI是青龙偃月刀，行动力是赤兔马——产业特种兵' },
+    '人情': { name:'隐形操盘手',   rpgClass:'破局·人情 系', level:70, desc:'看穿办公室政治、合规留痕、借力打力——不声张的狠人' },
+  },
+  '技术': {
+    '务实': { name:'产业特种兵',   rpgClass:'技术·务实 系', level:75, desc:'带着AI工具下沉到实体经济，一个人顶三个人的效率' },
+    '求稳': { name:'数字公务员',   rpgClass:'技术·求稳 系', level:50, desc:'用技术能力考进体制，在数字政务浪潮中占据先机' },
+    '破局': { name:'AI革命者',     rpgClass:'技术·破局 系', level:85, desc:'用大模型和自动化颠覆传统行业——降维打击' },
+    '人情': { name:'人机桥梁',     rpgClass:'技术·人情 系', level:68, desc:'既懂代码又懂人心，在技术和业务之间翻译价值' },
+  },
+  '人情': {
+    '务实': { name:'关系变现师',   rpgClass:'人情·务实 系', level:48, desc:'把人脉变成资源，把资源变成实实在在的收益' },
+    '求稳': { name:'人情防护盾',   rpgClass:'人情·求稳 系', level:42, desc:'用高情商在复杂组织里保护自己，四两拨千斤' },
+    '破局': { name:'社交破壁者',   rpgClass:'人情·破局 系', level:58, desc:'用人情网络突破阶层壁垒——关系是另一种武器' },
+    '技术': { name:'温和创新者',   rpgClass:'人情·技术 系', level:55, desc:'用情商推动技术落地——让不会用AI的人也愿意跟你走' },
+  },
+};
+
+// Find ANY profession in matrix — used as last-resort fallback
+const FIRST_PROFESSION = Object.values(PROFESSION_MATRIX)
+  .flatMap(Object.values)
+  .find(p => p?.name) || { name:'冒险者', rpgClass:'未知 系', level:10, desc:'路径还在成型中' };
+
+function determineProfession(dims) {
+  // Sort dimensions by normalized score, pick top 2
+  const sorted = Object.entries(dims.norm).sort((a,b) => b[1] - a[1]);
+  const primary   = sorted[0][0];
+  const secondary = sorted[1][0];
+
+  // Look up profession. Try exact combo, then swap, then first available.
+  const prof = PROFESSION_MATRIX[primary]?.[secondary]
+            ?? PROFESSION_MATRIX[secondary]?.[primary]
+            ?? FIRST_PROFESSION;
+
+  // Adjust level based on highest dimension score
+  const topScore = sorted[0][1];
+  const adjustedLevel = Math.min(99, prof.level + Math.floor((topScore - 50) / 3));
+
+  return {
+    ...prof,
+    level: Math.max(10, adjustedLevel),
+    primaryDim: primary,
+    secondaryDim: secondary,
+    topScore,
+  };
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  PHASE 3: MODULAR TEXT FRAGMENTS (Gene Splicing)       ║
+// ╚══════════════════════════════════════════════════════════╝
+function seg(val) {
+  // Segment a normalized 0-100 score
+  if (val >= 65) return 'high';
+  if (val >= 35) return 'mid';
+  return 'low';
+}
+
+const FRAGMENTS = {
+  // ── 生存战壕 (务实 × 求稳) ──────────────────────────────
+  trench: {
+    '务实_high': {
+      '求稳_high': `你的战壕在<strong>实体经济与体制交界的务实岗位</strong>——体制外包、国企供应链、政府数字化项目。这些地方既需要"把事情做出来"的硬功夫，又有一定的稳定性兜底。你不是在"下沉"，你是在"扎根"——用AI工具+合规意识，在一个具体行业里建立不可替代性。`,
+      '求稳_mid': `你的战壕在<strong>现金流稳定的实体产业前线</strong>——制造业数字化、新零售运营、本地生活服务。这些领域不性感但真实，急需会用AI提效的年轻人。你的务实让你不会被大饼忽悠，你的AI技能让你在基层岗位里降维打击。`,
+      '求稳_low': `你的战壕在<strong>高波动的市场一线</strong>——创业公司、项目制团队、自由职业。你不追求稳定，你追求成长速度和现金流。这份务实让你在任何环境下都能先活下来，再图发展。但要记得：给自己留一条后路。`,
+    },
+    '务实_mid': {
+      '求稳_high': `你的战壕在<strong>体制边缘的过渡性岗位</strong>——社区服务、档案数字化、政务辅助。你还在寻找稳固的立足点，这些岗位给了你"缓冲期"——有基本保障，有时间学习，有空间想清楚下一步。`,
+      '求稳_mid': `你的战壕还在<strong>成型阶段</strong>。你需要一份能覆盖基本开支的工作作为"安全垫"，同时用业余时间疯狂学习AI工具和行业知识。先稳住，再进化。`,
+      '求稳_low': `你的战壕处于<strong>探索期</strong>。你还没有明确的方向，这没关系——大多数人毕业时都没有。现在的重点是：找一份能让你接触真实商业环境的工作，任何工作。在行动中找方向，不是在思考中找方向。`,
+    },
+    '务实_low': {
+      '求稳_high': `你的战壕目前是<strong>家庭的庇护所+体制备考的课桌</strong>。但请清醒：2026年的考编是千军万马过独木桥。你需要一面备考，一面建立"如果考不上"的Plan B——哪怕是一份清闲的过渡性工作。安全感不能只来自一张准考证。`,
+      '求稳_mid': `你的战壕还比较脆弱。<strong>当前第一要务是拿到第一份薪水</strong>——什么工作都行，只要能覆盖房租和三餐。经济独立的那一刻，你的世界会从"生存模式"切换到"发展模式"。先活下来，再谈梦想。`,
+      '求稳_low': `你的战壕目前是你脑子里每天的"内耗战场"。你既没有稳定的收入来源，也没有清晰的方向，但你对自己不满意——这份不满意恰恰是你最大的资产。<strong>明天，投出一份简历。任何岗位。行动是内耗唯一的解药。</strong>`,
+    },
+  },
+
+  // ── 反杀手段 (破局 × 技术) ──────────────────────────────
+  skills: {
+    '破局_high': {
+      '技术_high': [
+        { title:'用48小时做一个"行业解决方案"Demo', body:'锁定一个你感兴趣的行业（制造、农业、物流、零售），用AI工具做一份完整的行业数字化方案：包含数据分析、自动化流程设计和ROI测算。这不是"作业"——这是你面试时甩在桌子上的核武器。2026年的老板看到这种东西眼睛会发光。' },
+        { title:'直接找到老板，绕过HR', body:'打开天眼查/企查查，找到你目标赛道里3-5家企业的法人或总经理名字，在抖音/脉脉/微信上直接私信："X总，我研究了贵司的XX业务，用AI可以在XX环节提效30%。我愿意从基层做起，做出效果再谈薪资。"实体老板最吃这一套。' },
+        { title:'建一个"资产化笔记"，从今天开始', body:'用飞书或Notion建私密知识库。每天记录：①一个你看到的商业逻辑；②一项你学到的新技能（哪怕只是开发票）；③一个你用AI提效的实例。三个月后，这份笔记就是你的跳槽弹药库——比任何简历都有说服力。' },
+      ],
+      '技术_mid': [
+        { title:'用一周时间，把一项技能练到"能卖钱"的水平', body:'不是泛泛地学。选一项具体技能（AI写文案、Excel数据分析、短视频剪辑），用7天集中突破。然后去闲鱼/猪八戒接第一个单——哪怕只收50块。第一次靠自己的本事赚到钱的冲击，比任何职业规划都有用。' },
+        { title:'做"最小可行行动"实验', body:'你不需要完美的计划。明天只做一件事：投一份简历、发一条私信、或者做一个小作品。行动本身会产生多巴胺，打破"我还没准备好"的死循环。一份简历投出去，你就赢了今天的自己。' },
+        { title:'找到第一个"战壕队友"', body:'在你的城市或线上，找到1-2个处于相似阶段的年轻人。每周一次交换信息、互相监督。一个人走得快，两个人走得远——而且不容易在低谷时放弃。' },
+      ],
+      '技术_low': [
+        { title:'先拿下一份能活下来的工作', body:'打开BOSS直聘/58同城，筛选"急聘""可立即到岗"的岗位。目标只有一个：后天之前拿到一份能覆盖房租+三餐的薪水。连锁门店、仓储物流、社区团购——不挑，活下去是第一优先级。' },
+        { title:'入职第一天开始"微型商业间谍"模式', body:'不管在便利店、快递站还是餐厅，观察：①钱怎么流动；②客户为什么买单；③老板最头疼什么。记下来——这些认知是你未来翻盘的"底层数据"，坐写字楼的人一辈子都学不到。' },
+        { title:'每天下班后花1小时，用AI做第二份收入', body:'帮商家写大众点评文案（闲鱼接单）、用AI生成短视频脚本（接本地商家代运营）、帮小老板做Excel报表。一个月后，你的副业收入可能超过主业。AI已经把门槛降到了零——你只需要行动。' },
+      ],
+    },
+    '破局_mid': {
+      '技术_high': [
+        { title:'用AI给自己做一份"不可拒绝"的求职材料', body:'别用大学就业指导中心的苍白模板。用ChatGPT提炼你大学做过的所有事——重点是"帮谁解决了什么问题"。然后针对目标公司写一份500字的"如果我入职，我怎么用AI帮你们提效"。面试官大概率没见过——你已经赢了95%的竞争者。' },
+        { title:'定位一家"等你来降维打击"的企业', body:'企查查锁定成立5年以上、50-300人的实体企业。看招聘岗位——出现"新媒体运营""电商专员""数据助理"说明老板想数字化但完全不会。这就是你的切口。附上你的AI方案，告诉他们试用期不要高薪，做出效果再谈。' },
+        { title:'每天投入1小时，投资通用型硬技能', body:'AI提示词工程、Excel数据分析、商务写作——任选其一，坚持21天。技能本身会帮你打开方向，因为你会的越多，你能看到的机会就越多。' },
+      ],
+      '技术_mid': [
+        { title:'做一次"职业方向压力测试"', body:'选3个你感兴趣的行业，每个方向找2家公司，用AI分析它们的业务痛点，针对每家公司写300字的"如果我入职怎么帮你提效"。投出去——哪家回复你，就是市场给你的方向。行动比思考更能帮你找到答案。' },
+        { title:'建每日"最小成长单元"', body:'每天投入1小时：学一项硬技能。不追求完美，70%的完成率坚持21天就足够让你脱胎换骨。最重要的不是学什么，是"每天做"这个习惯本身。' },
+        { title:'找到你的"第一个付费客户"', body:'尝试用自己的技能帮人解决问题并收到钱——帮人改简历收50、帮小店写小红书收100。第一次靠自己本事赚到钱的心理冲击，胜过任何职业规划。' },
+      ],
+      '技术_low': [
+        { title:'先投30份简历，目标是"后天上班"', body:'筛选"急聘""包住"的岗位——连锁门店管培生、仓储调度、电商客服。学历门槛低、现金流快、有上升通道。先拿到能覆盖基本开支的薪水。' },
+        { title:'入职后把自己当"微型商业间谍"', body:'观察钱怎么流动、客户为什么买单、老板头疼什么。记下来——这些是未来翻盘的资本。带着脑子干活的人，在任何行业都会被看见。' },
+        { title:'给自己定"最小生存单元"', body:'一份临时工作+一个技能学习目标（如"本周学会用AI写周报"）+每天一次真实社交。三个动作完成，生活就有了结构。有结构，内耗自然消散。' },
+      ],
+    },
+    '破局_low': {
+      '技术_high': [
+        { title:'先把AI工具学到"肌肉记忆"级别', body:'花三天时间深度学一个大模型工具（ChatGPT/Kimi/DeepSeek）。学会用Prompt解决实际问题——写简历、做数据分析、生成文案。技术是你的杠杆，但现在需要的是用行动把它用起来。' },
+        { title:'做一个"48小时社会实验"', body:'48小时内：①停止刷所有"就业焦虑""XX行业已死"的内容；②做三件你一直想做但不敢做的事；③用AI做一个你专业领域的小作品。你会发现：你的焦虑80%来自信息茧房，不是真实世界。' },
+        { title:'设定最小行动目标：明天投出一份简历', body:'不需要海投，不需要完美简历。一份30分钟能改好的简历，投给一个你看得上的岗位。一份简历投出去，你就已经赢了今天的自己。行动是内耗唯一的解药。' },
+      ],
+      '技术_mid': [
+        { title:'明天只做一件事', body:'不是海投，不是精修三天的完美简历。一份30分钟能改好的简历，投给一个你看得上的岗位。你的问题不是能力不够，是太久没有行动了。行动本身会产生多巴胺，打破"我还没准备好"的死循环。' },
+        { title:'做"48小时信息断食"', body:'完全停止刷"躺平文学""就业焦虑""XX已死"。同时做三件你一直想做的事——给崇拜的人发私信、去感兴趣的公司门口看看、用AI做一个小工具。48小时后观察焦虑变化——你会发现信息茧房才是焦虑的源头。' },
+        { title:'建"最小生存单元"', body:'一份临时工作+一个技能目标+每天一次真实社交。不需要规划三年，只需要规划三天。有了结构，内耗自然消散。大脑在一个没有结构的空间里无限空转——这就是内耗的本质。' },
+      ],
+      '技术_low': [
+        { title:'明天：投出一份简历', body:'任何岗位，任何公司。一份简历投出去，你已经赢了今天的自己。内耗者的最大敌人是"我还没准备好"——这个句子在你的脑子里重复了一万遍，但你从来没去验证过它是不是真的。' },
+        { title:'断绝信息茧房48小时', body:'停止刷所有让你焦虑的内容。你的大脑需要一次"信息断食"。48小时后，用AI帮你做一份简历——你需要看到自己其实比想象中强。' },
+        { title:'定一个"三天计划"', body:'不需要三年规划。三天：第一天投简历，第二天学一个AI工具的基础操作，第三天跟一个真实的人聊天（不是微信打字）。三天后你会有不一样的感觉。行动是内耗唯一的解药。' },
+      ],
+    },
+  },
+
+  // ── 情感防弹衣 (人情) ──────────────────────────────────
+  armor: {
+    '人情_high': `你已经在复杂的人际关系中找到了自己的生存法则——合规留痕、借力打力、用经济独立划定边界。这不是"圆滑"，这是成年人的基本护甲。<strong>你的情商是你最被低估的武器。</strong>保持这份清醒：对值得的人真诚，对不值得的人设防。你的关系网络不是负担，是你在社会这所大学里修到的最高学分。`,
+    '人情_mid': `你正在学习关系的边界——什么时候该进，什么时候该退，什么时候该沉默，什么时候该亮出底线。这个过程不舒服，但它是成年人必须完成的功课。<strong>记住：关系不是用来讨好的，是用来互相成就的。</strong>不用急着取悦所有人，先取悦那个还在努力变好的自己。`,
+    '人情_low': `你在人际关系的战场上还在"裸奔"——要么太天真容易受伤，要么太封闭错过了机会。<strong>但没关系，人情是可以学的，就像学任何技能一样。</strong>从明天开始做两件事：①对帮助你的人说一声真诚的谢谢；②对消耗你的人设一条清晰的边界。这两件事，比任何职场厚黑学都有用。`,
+  },
+
+  // ── 热血定调 (主属性) ─────────────────────────────────
+  cry: {
+    '务实': `你不需要宏大的梦想来驱动自己——你需要的是<strong>银行卡余额每多一位数带来的底气。</strong>活下去，是所有故事的第一章。把"生存"这个副本打通了，爱情、尊严、选择权都是通关奖励。你不是在底层挣扎——你是在收集"底层数据"，这些数据是含着金钥匙的人一辈子都得不到的。活下去，然后让他们看看什么才是真正的狠人。`,
+    '求稳': `稳不代表慢，更不代表停。<strong>在这个连体制都在悄悄洗牌的时代，一个手里既有铁饭碗、又握着AI利器的年轻人，才是真正让人忌惮的存在。</strong>你选择了一条看起来最安全的赛道——但安全不意味着平庸。在确定性框架下，你完全可以比那些"高风险高回报"的人走得更远。因为你不用花精力担心明天会不会翻车——你的精力可以全部用在进化上。`,
+    '破局': `<strong>行动是这个时代的硬通货。</strong>当别人还在纠结"该选哪条路"的时候，你已经迈出了第一步——你就已经干掉了80%的内耗者。这个世界是一个巨大的草台班子，高高在上的面试官四年前也是混过来的。你不需要完美，你只需要开始。每一次行动都在积累多巴胺，每一个成果都在喂饱你的自信心。冲——带着止损线冲，但一定要冲。`,
+    '技术': `<strong>AI不会淘汰你，先学会用AI的同龄人才会淘汰你。</strong>你选择了这个时代最性感的武器——把AI当成你的青龙偃月刀。但工具只是工具，真正让它有价值的是你：你的判断力、你的行业洞察、你用它解决实际问题的能力。当所有人都在办公室里焦虑AI会不会替代自己的时候，你已经在一个行业里扎下了根。这就是降维打击。`,
+    '人情': `<strong>看懂规则的人，永远不会输。</strong>你选择了一条被大多数人低估的路——经营关系、读懂人心、在复杂的人际网络中保护自己同时帮助别人。这不是"会来事"，这是顶级的社会生存智慧。技术可以取代技能，但取代不了你对人的理解、对规则的洞察、对情绪的驾驭。在这个越来越冷淡的时代，你的"人情"就是你最深的护城河。`,
+  },
+};
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  ASSEMBLY ENGINE                                       ║
+// ╚══════════════════════════════════════════════════════════╝
+// Resolve a 2-level nested lookup with fallback.
+// e.g. pick('trench', `务实_${seg}`, `求稳_${seg}`) → falls back to mid/mid → hardcoded string
+const pick2 = (group, k1, k2, fallback) =>
+  FRAGMENTS[group]?.[k1]?.[k2] ?? FRAGMENTS[group]?.[k1]?.['求稳_mid'] ?? fallback;
+
+const pick1 = (group, key, fallback) =>
+  FRAGMENTS[group]?.[key] ?? fallback;
+
+// Default text fragments — always safe to use
+const DEFAULTS = {
+  trench: '你的生存战壕正在成型。当前最重要的是：找到一份能接触真实商业环境的工作，在行动中找到方向。',
+  skills: FRAGMENTS.skills['破局_mid']['技术_mid'], // mid/mid as universal fallback
+  armor: FRAGMENTS.armor['人情_mid'],
+  cry: FRAGMENTS.cry['务实'],
+};
+
+function assembleReport(dims, profession, answers) {
+  const s = {
+    务实: seg(dims.norm.务实), 求稳: seg(dims.norm.求稳),
+    破局: seg(dims.norm.破局), 技术: seg(dims.norm.技术), 人情: seg(dims.norm.人情),
+  };
+
+  // ── Trench (务实 × 求稳) ──
+  const 战壕 = pick2('trench', `务实_${s.务实}`, `求稳_${s.求稳}`, DEFAULTS.trench);
+
+  // ── Skills (破局 × 技术) ──
+  const 反杀手段 = pick2('skills', `破局_${s.破局}`, `技术_${s.技术}`, DEFAULTS.skills);
+
+  // ── Armor (人情) ──
+  let 情感防弹衣 = pick1('armor', `人情_${s.人情}`, DEFAULTS.armor);
+
+  // ── Battle Cry (主属性) ──
+  let 热血定调 = pick1('cry', profession.primaryDim, DEFAULTS.cry);
+
+  // ── Personalization add-ons ──
+  if (answers['q5'] === 'B') {
+    情感防弹衣 += '\n\n<strong>【家庭压力专项】</strong>你正承受着"夹板气"——父母的期望和现实的落差。父母的焦虑来自他们对时代的不确定感，不是你造成的。第一个月工资到账的那一刻，截个图发给家里，比你解释一年都管用。';
+  }
+  if (answers['q5'] === 'C') {
+    情感防弹衣 += '\n\n<strong>【家庭关系专项】</strong>你的"亲情防火墙"策略是极其成熟的认知。用经济独立划定边界，用阶段性成果管理家人预期——保持这个节奏。';
+  }
+  if (answers['q7'] === 'A') {
+    热血定调 += '\n\n<strong>【大学清算】</strong>你后悔大学四年的放纵——这份后悔不是负担，是你觉醒的燃料。从不后悔的人可能永远都不会觉醒。你的后悔，恰恰是你开始变强的信号。';
+  }
+  if (answers['q2'] === 'C') {
+    热血定调 += '\n\n<strong>【合规加成】</strong>你在Q2的"表面顺从、底线清晰、依规留痕"是职场生存的黄金法则。2026年国家推行高质量就业和合规用工——你的留痕习惯不仅保护你自己，也让你在任何劳动纠纷中立于不败之地。';
+  }
+
+  return { 生存战壕:战壕, 反杀手段, 情感防弹衣, 热血定调 };
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  MAIN ENTRY: generateRoadmap                            ║
+// ╚══════════════════════════════════════════════════════════╝
+function generateRoadmap(answers) {
+  const dims = compute5Dims(answers);
+  const profession = determineProfession(dims);
+  const report = assembleReport(dims, profession, answers);
+
+  // Determine match quality based on how concentrated the top scores are
+  const scores = Object.values(dims.norm);
+  const top2 = scores.sort((a,b) => b-a).slice(0,2);
+  const concentration = (top2[0] - top2[1]); // gap between top 2
+  const matchQuality = concentration > 18 ? 'high' : concentration > 8 ? 'medium' : 'low';
+
+  return {
+    professionName: profession.name,
+    rpgClass: profession.rpgClass,
+    rpgLevel: profession.level,
+    primaryDim: profession.primaryDim,
+    secondaryDim: profession.secondaryDim,
+    matchQuality,
+    dimensions: dims.norm,       // 0-100 normalized
+    rawScores: dims.raw,         // raw scores for debugging
+    生存战壕: report.生存战壕,
+    反杀手段: report.反杀手段,
+    情感防弹衣: report.情感防弹衣,
+    热血定调: report.热血定调,
+    generatedAt: new Date().toISOString(),
+    answerProfile: answers,
+  };
+}
+
+// ── DEEPSEEK CLIENT ────────────────────────────────────────
+const DeepSeekClient = {
+  config: { apiKey:'', apiBase:'https://api.deepseek.com/v1', model:'deepseek-chat', maxTokens:800, temperature:0.85, enabled:false },
+
+  init(cfg={}) { Object.assign(this.config, cfg); this.config.enabled = !!this.config.apiKey; return this.config.enabled; },
+  setApiKey(key) { this.config.apiKey = key; this.config.enabled = !!key; if(key) safeLocal.set('deepseek_api_key_rpg',key); else safeLocal.remove('deepseek_api_key_rpg'); },
+  loadApiKey() { const s = safeLocal.get('deepseek_api_key_rpg'); if(s){ this.config.apiKey = s; this.config.enabled = true; } return this.config.enabled; },
+
+  buildSystemPrompt(profile) {
+    return `你是一位精通中国当代青年心理学、宏观经济政策的资深职业顾问，名字叫"老陆"。说话风格扎心、直接、不废话，但底色是善意的。
+
+你正在为一个刚做完"2026届毕业生社会化全景诊断"RPG副本版的年轻人做Q11灵魂留白回应。
+
+## 这个年轻人的10题答案画像
+${JSON.stringify(profile.answers, null, 2)}
+
+## TA的职业原型
+${profile.professionName} — ${profile.rpgClass}
+主属性：${profile.primaryDim || '?'}  副属性：${profile.secondaryDim || '?'}
+
+## TA的5维评分（0-100）
+${JSON.stringify(profile.dimensions, null, 2)}
+
+## TA的原始向量分
+${JSON.stringify(profile.dimensions, null, 2)}
+
+## 任务
+基于TA的完整画像和Q11自由文字，写一段300-400字的个性化回应。
+
+## 铁律
+1. 不评价性格（严禁"你是外向/内向的"）
+2. 给出1-2个明天就能做的具体动作
+3. 结合2026年宏观背景（AI提效、产业下沉、合规就业）
+4. 语气像一个打过仗的老兵跟新兵说话，不鸡汤、不爹味
+5. 结尾必须给TA一股力量
+
+## 格式
+不分点、不列标题，自然段落，像一封简短的回信。`;
+  },
+
+  async generateQ11Response(text, profile) {
+    if (!this.config.enabled) return null;
+    try {
+      const resp = await fetchWithTimeout(`${this.config.apiBase}/chat/completions`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${this.config.apiKey}`},
+        body: JSON.stringify({
+          model:this.config.model, messages:[
+            {role:'system',content:this.buildSystemPrompt(profile)},
+            {role:'user',content:text||'（这位同学什么都没写，但选择留白本身也是一种表达。请基于TA的10题画像，给TA一段话。）'}
+          ],
+          max_tokens:this.config.maxTokens, temperature:this.config.temperature, stream:false
+        })
+      }, 15000); // 15s timeout
+      if (!resp.ok) { const err = await resp.json().catch(()=>({})); throw new Error(err.error?.message||`API请求失败: ${resp.status}`); }
+      const data = await resp.json();
+      return data.choices?.[0]?.message?.content || null;
+    } catch(e) { console.warn('DeepSeek API失败:', e.message); throw e; }
+  },
+
+  /** Streaming version — calls onChunk as tokens arrive. Returns full text via onComplete. */
+  async generateQ11ResponseStream(text, profile, onChunk, onComplete, onError) {
+    if (!this.config.enabled) { onComplete?.(null); return; }
+    try {
+      const resp = await fetchWithTimeout(`${this.config.apiBase}/chat/completions`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${this.config.apiKey}`},
+        body: JSON.stringify({
+          model:this.config.model, messages:[
+            {role:'system',content:this.buildSystemPrompt(profile)},
+            {role:'user',content:text||'（这位同学什么都没写，但选择留白本身也是一种表达。）'}
+          ],
+          max_tokens:this.config.maxTokens, temperature:this.config.temperature, stream:true
+        })
+      }, 15000);
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(()=>({}));
+        throw new Error(err.error?.message||`API请求失败: ${resp.status}`);
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n').filter(l => l.startsWith('data: '));
+        for (const line of lines) {
+          const payload = line.slice(6).trim();
+          if (payload === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(payload);
+            const content = parsed.choices?.[0]?.delta?.content || '';
+            if (content) { fullText += content; onChunk?.(content, fullText); }
+          } catch { /* skip unparseable chunks */ }
+        }
+      }
+      onComplete?.(fullText);
+    } catch (e) {
+      console.warn('DeepSeek streaming failed:', e.message);
+      onError?.(e);
+    }
+  }
+};
+
+// ── LOCAL AI FALLBACK ──────────────────────────────────────
+function generateLocalQ11Response(text, professionName, primaryDim) {
+  if (!text || !text.trim()) return null;
+  const hasAction = /做|行动|开始|明天|今天|计划|决定|尝试|努力|改|学|写|投/g.test(text);
+  const hasEmotion = /焦虑|害怕|迷茫|痛苦|绝望|后悔|难过|累|压力|崩溃/g.test(text);
+
+  // Response templates keyed by primary dimension
+  const responses = {
+    '务实': `读到你的文字，我只想说——真实。${hasEmotion ? '你没有粉饰任何东西，这本身就是一种力量。大多数人在痛苦面前选择逃避，你选择了直面。' : ''}${hasAction ? '你提到了行动，这是最好的信号。不要等到"准备好"——那个时刻永远不会来。明天，把你写下的第一件事拆成三步，只做第一步。第一步迈出去，后面的路会自己展开。' : '明天，做一件让银行卡余额变多的事。任何事。经济独立的那一刻，世界对你的态度会不一样。'}你的职业是"${professionName}"——这意味着你把生存放在第一位，这是对的。活下去，是所有故事的第一章。`,
+
+    '求稳': `你的文字透着一股"稳"——在这个不确定的时代，这是稀缺品质。${hasEmotion ? '你的焦虑源于对未知的恐惧，这很正常。但记住：你选择稳定不是逃避，是理性判断。' : ''}${hasAction ? '按你写的计划去执行。一步一个脚印，你选的这条路走得慢，但走得远。' : '在寻求稳定的同时，花点时间学一个AI工具。这会是你最大的差异化武器。'}你的职业是"${professionName}"——稳不代表慢，更不代表停。确定性框架下，你可以全力进化。`,
+
+    '破局': `你的文字里有一股劲——我看得到。${hasEmotion ? '但也请注意：劲用对了方向是突破，用错了是内耗。' : ''}${hasAction ? '你已经有了行动方向，这比90%的人强。下一步不是"更努力"，而是"更精准"——把你的行动力聚焦到一个具体的赛道、一家具体的公司。精准，是最大的杠杆。' : '把你写下的想法变成明天的一个具体动作。哪怕只是投一份简历。行动本身会产生多巴胺，打破"我还没准备好"的死循环。'}你的职业是"${professionName}"——当别人还在纠结选哪条路的时候，你已经迈出了第一步。这就干掉了80%的内耗者。迈出第一步，然后第二步，然后你就停不下来了。`,
+
+    '技术': `你选了这个时代最性感的武器——把AI当成你的杠杆。${hasEmotion ? '你对技术变革的焦虑不是软弱，是敏锐。但请把焦虑转化成学习的动力——花一周时间精通一个大模型工具，你的信心会完全不同。' : ''}${hasAction ? '你提到的方向很好——现在需要的是做一个具体的小作品。哪怕只是一个用AI做的数据分析报告。一线城市的老板不吃情怀，只吃成果。' : '明天，用AI做一个具体的作品。任何作品。一个landing page、一份行业分析、一套文案模板。面试的时候直接打开电脑给人看——这个动作会让你在95%的竞争者中脱颖而出。'}你的职业是"${professionName}"——AI不会淘汰你，先学会用AI的同龄人才会。你已经在正确的方向上了。`,
+
+    '人情': `你懂得了一个被大多数人低估的真理——<strong>看懂规则的人，永远不会输。</strong>${hasEmotion ? '你对人际关系的敏感不是弱点，是你最被低估的武器。会读空气、懂边界、知进退——这些是任何AI都替代不了的能力。' : ''}${hasAction ? '你写下的行动方向很好——现在需要的是在执行中继续保持对人心的洞察。技术能帮你做事，人情能帮你成事。' : '明天，做一件"对人"的事：给一个帮过你的人真诚地道谢，或者给一个消耗你的人设一条清晰的边界。这两件事比任何职场厚黑学都有用。'}你的职业是"${professionName}"——在这个越来越冷冰冰的时代，懂人情的人永远有饭吃。保持这份清醒。`,
+  };
+
+  return responses[primaryDim] || responses['务实'];
+}
+
+// ============================================================
+//  RPG APP CONTROLLER
+// ============================================================
+const RPGApp = {
+  state: {
+    screen: 'title',
+    currentQuestion: 0,
+    answers: {},
+    q11Text: '',
+    roadmap: null,
+    q11AIResponse: null,
+    isGenerating: false,
+    typedText: '',     // for typewriter
+    typingTimer: null,
+    activeRpgTab: 'trench'
+  },
+
+  // ── Init ──
+  init() {
+    DeepSeekClient.loadApiKey();
+    this.bindEvents();
+    this.checkHash();
+  },
+
+  checkHash() {
+    const hash = window.location.hash;
+    if (hash === '#result' && safeStore.get('roadmap_rpg')) {
+      this.state.roadmap = JSON.parse(safeStore.get('roadmap_rpg'));
+      this.state.q11AIResponse = safeStore.get('q11_ai_rpg') || null;
+      this.state.answers = JSON.parse(safeStore.get('answers_rpg') || '{}');
+      this.state.q11Text = safeStore.get('q11_text_rpg') || '';
+      this.state.screen = 'result';
+      this.render();
+      return;
+    }
+    this.renderTitle();
+  },
+
+  bindEvents() {
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      switch (action) {
+        case 'start': this.startGame(); break;
+        case 'prev': this.prevQuestion(); break;
+        case 'next': this.nextQuestion(); break;
+        case 'skip-q11': this.generateResult(); break;
+        case 'submit-q11': this.submitQ11(); break;
+        case 'restart': this.restart(); break;
+        case 'save-api-key': this.saveApiKey(); break;
+        case 'toggle-api': this.toggleApiPanel(); break;
+        case 'retry-ai': this.retryAI(); break;
+        case 'tab-trench': this.switchTab('trench'); break;
+        case 'tab-skills': this.switchTab('skills'); break;
+        case 'tab-armor': this.switchTab('armor'); break;
+        case 'tab-battlecry': this.switchTab('battlecry'); break;
+        case 'tab-stats': this.switchTab('stats'); break;
+        case 'tab-q11result': this.switchTab('q11result'); break;
+      }
+    });
+
+    // Option selection
+    document.addEventListener('click', (e) => {
+      const opt = e.target.closest('[data-option]');
+      if (!opt) return;
+      const qId = opt.dataset.qId;
+      const value = opt.dataset.value;
+      this.selectOption(qId, value, opt);
+    });
+
+    // Q11 input
+    document.addEventListener('input', (e) => {
+      if (e.target.id === 'q11-input-rpg') {
+        this.state.q11Text = e.target.value;
+        this.updateQ11Count();
+      }
+    });
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+      if (this.state.screen === 'title' && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault(); this.startGame(); return;
+      }
+      if (this.state.screen !== 'questions') return;
+      if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        if (this.hasCurrentAnswer()) { e.preventDefault(); this.nextQuestion(); }
+      }
+    });
+  },
+
+  // ── Render ──
+  render() {
+    switch (this.state.screen) {
+      case 'title': this.renderTitle(); break;
+      case 'questions': this.renderQuestion(); break;
+      case 'loading': this.renderLoading(); break;
+      case 'result': this.renderResult(); break;
+    }
+  },
+
+  // ── Title Screen ──
+  renderTitle() {
+    this.state.screen = 'title';
+    document.getElementById('app').innerHTML = `
+      <div class="title-screen fade-in">
+        <div class="title-stars" style="top:10%;left:10%;">✦ ✦ ✦</div>
+        <div class="title-stars" style="top:20%;right:15%;">✦ ✦</div>
+        <div class="title-stars" style="bottom:25%;left:20%;">✦ ✦ ✦</div>
+        <div class="title-stars" style="bottom:15%;right:10%;">✦</div>
+
+        <div class="title-logo">
+          2026届毕业生<br>
+          社会化全景诊断
+        </div>
+        <div class="title-sub">⚔ RPG 副本版 ⚔</div>
+        <div class="title-decor">━━━━━━━━━━━━━━━━</div>
+
+        <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:2rem;max-width:480px;line-height:2;">
+          这里没有虚伪的AI废话，没有无用的成功学鸡汤。<br>
+          <strong style="color:var(--crt-gold);">一场纯匿名、绝不泄露隐私的社会化生存体检。</strong>
+        </p>
+
+        <button class="start-btn" data-action="start">
+          ▶ PRESS START
+        </button>
+
+        <div class="title-footer" style="margin-top:2rem;">
+          Ⓒ 2026 SURVIVAL ROADMAP SYSTEM<br>
+          <span style="color:var(--text-muted);">10道核心副本 + 1道灵魂留白</span>
+        </div>
+        <div class="title-footer" style="margin-top:1rem;color:var(--text-muted);">
+          [ ENTER 或 点击 开始游戏 ]
+        </div>
+      </div>
+    `;
+  },
+
+  // ── Start Game ──
+  startGame() {
+    this.state.screen = 'questions';
+    this.state.currentQuestion = 0;
+    this.state.answers = {};
+    this.state.q11Text = '';
+    this.state.roadmap = null;
+    this.state.q11AIResponse = null;
+    this.renderQuestion();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  },
+
+  // ── Question Rendering ──
+  getCurrentQuestion() {
+    if (this.state.currentQuestion < QUESTIONS.length) return QUESTIONS[this.state.currentQuestion];
+    return null;
+  },
+
+  hasCurrentAnswer() {
+    const q = this.getCurrentQuestion();
+    if (!q) return true;
+    if (q.subQuestions) return q.subQuestions.every(sq => this.state.answers[sq.id]);
+    return !!this.state.answers[`q${q.id}`];
+  },
+
+  selectOption(qId, value, element) {
+    // Deselect siblings
+    const parent = element.closest('.rpg-commands');
+    if (parent) parent.querySelectorAll('.rpg-command').forEach(c => c.classList.remove('selected'));
+    element.classList.add('selected');
+    this.state.answers[qId] = value;
+    this.updateNavBtn();
+  },
+
+  updateNavBtn() {
+    const btn = document.querySelector('[data-action="next"]');
+    if (btn) btn.disabled = !this.hasCurrentAnswer();
+  },
+
+  renderQuestion() {
+    const q = this.getCurrentQuestion();
+    if (!q) { this.renderQ11(); return; }
+
+    const totalSteps = QUESTIONS.length;
+    const cur = this.state.currentQuestion + 1;
+    const progress = (cur / (totalSteps + 1)) * 100;
+    const isFirst = this.state.currentQuestion === 0;
+    const isLast = this.state.currentQuestion === totalSteps - 1;
+
+    let questionsHtml = '';
+    if (q.subQuestions) {
+      questionsHtml = q.subQuestions.map(sq => {
+        const sel = this.state.answers[sq.id];
+        return `
+          <div class="sub-q-label">▸ ${sq.text}</div>
+          <div class="rpg-commands" style="margin-bottom:1rem;">
+            ${sq.options.map(opt => `
+              <div class="rpg-command ${sel===opt.value?'selected':''}"
+                   data-option data-q-id="${sq.id}" data-value="${opt.value}">
+                <span class="cmd-selector">▶</span>
+                <div class="cmd-marker">[${opt.value}]</div>
+                <div class="cmd-body">
+                  <div class="cmd-label">${opt.label}</div>
+                  <div class="cmd-desc">${opt.desc}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }).join('');
+    } else {
+      const qId = `q${q.id}`;
+      const sel = this.state.answers[qId];
+      questionsHtml = `
+        <div class="rpg-commands">
+          ${q.options.map(opt => `
+            <div class="rpg-command ${sel===opt.value?'selected':''}"
+                 data-option data-q-id="${qId}" data-value="${opt.value}">
+              <span class="cmd-selector">▶</span>
+              <div class="cmd-marker">[${opt.value}]</div>
+              <div class="cmd-body">
+                <div class="cmd-label">${opt.label}</div>
+                <div class="cmd-desc">${opt.desc}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    document.getElementById('app').innerHTML = `
+      <div class="question-screen fade-in">
+        <div class="pixel-progress">
+          <span style="font-family:var(--font-pixel);font-size:0.55rem;color:var(--crt-blue);">Lv.${cur}</span>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:${progress}%"></div>
+          </div>
+          <div class="progress-label">${cur}/${totalSteps+1}</div>
+        </div>
+
+        <div class="rpg-dialog pixel-box">
+          <div class="dialog-header">
+            <div class="dialog-badge ${cur>=8?'boss':''}">
+              ${cur>=8?'⚠ BOSS STAGE':'QUEST '+cur}
+            </div>
+            <div class="dialog-title">${q.title}</div>
+          </div>
+          <div class="dialog-scenario" id="scenario-text">
+            ${q.scenario}
+          </div>
+
+          ${questionsHtml}
+
+          ${q.note ? `<div class="system-note-rpg">${q.note}</div>` : ''}
+        </div>
+
+        <div class="rpg-nav">
+          ${!isFirst ? '<button class="pixel-btn" data-action="prev">◀ 上一关</button>' : '<div></div>'}
+          <button class="pixel-btn btn-primary" data-action="next" ${this.hasCurrentAnswer()?'':'disabled'}>
+            ${isLast ? '⚔ BOSS STAGE ▶' : '下一关 ▶'}
+          </button>
+        </div>
+      </div>
+    `;
+
+    window.scrollTo({ top:0, behavior:'smooth' });
+  },
+
+  prevQuestion() {
+    if (this.state.currentQuestion > 0) {
+      this.state.currentQuestion--;
+      this.renderQuestion();
+    } else {
+      this.renderTitle();
+    }
+  },
+
+  nextQuestion() {
+    if (!this.hasCurrentAnswer()) return;
+    if (this.state.currentQuestion < QUESTIONS.length - 1) {
+      this.state.currentQuestion++;
+      this.renderQuestion();
+    } else {
+      this.state.currentQuestion = QUESTIONS.length;
+      this.renderQ11();
+    }
+  },
+
+  // ── Q11 ──
+  renderQ11() {
+    const totalSteps = QUESTIONS.length;
+    document.getElementById('app').innerHTML = `
+      <div class="question-screen fade-in">
+        <div class="pixel-progress">
+          <span style="font-family:var(--font-pixel);font-size:0.6rem;color:var(--crt-gold);">★</span>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:100%;background:repeating-linear-gradient(90deg,var(--crt-gold) 0px,var(--crt-gold) 8px,#554400 8px,#554400 10px);"></div>
+          </div>
+          <div class="progress-label">${totalSteps+1}/${totalSteps+1}</div>
+        </div>
+
+        <div class="rpg-dialog pixel-box pixel-box-gold soul-scroll">
+          <div class="dialog-header">
+            <div class="dialog-badge" style="border-color:var(--crt-gold);color:var(--crt-gold);background:rgba(255,200,0,0.08);">★ SOUL BLANK</div>
+            <div class="dialog-title">${Q11.title}</div>
+          </div>
+          <p style="color:var(--text-dim);margin-bottom:0.75rem;line-height:1.8;">${Q11.scenario}</p>
+          <p style="color:var(--crt-gold);margin-bottom:1rem;font-style:italic;font-size:0.85rem;">${Q11.prompt}</p>
+
+          <textarea id="q11-input-rpg" placeholder="${Q11.placeholder}" maxlength="500" rows="6">${this.escapeHtml(this.state.q11Text)}</textarea>
+
+          <div class="soul-scroll-footer">
+            <span id="q11-char-count">${this.state.q11Text.length}/500</span>
+            <span>🔒 阅后即焚 · 绝不存储</span>
+          </div>
+        </div>
+
+        <div class="rpg-nav">
+          <button class="pixel-btn" data-action="prev">◀ 上一关</button>
+          <div style="display:flex;gap:10px;">
+            <button class="pixel-btn" data-action="skip-q11">跳过</button>
+            <button class="pixel-btn btn-gold" data-action="submit-q11">✨ 提交 · 生成路书</button>
+          </div>
+        </div>
+      </div>
+    `;
+    this.updateQ11Count();
+    setTimeout(() => { const ta = document.getElementById('q11-input-rpg'); if (ta) ta.focus(); }, 300);
+    window.scrollTo({ top:0, behavior:'smooth' });
+  },
+
+  updateQ11Count() {
+    const el = document.getElementById('q11-char-count');
+    if (el) el.textContent = `${this.state.q11Text.length}/500`;
+  },
+
+  submitQ11() {
+    const ta = document.getElementById('q11-input-rpg');
+    this.state.q11Text = ta ? ta.value : '';
+    this.generateResult();
+  },
+
+  // ── Generate ──
+  async generateResult() {
+    this.state.isGenerating = true;
+
+    // Phase 1: Compute roadmap (pure, instant)
+    const roadmap = generateRoadmap(this.state.answers);
+    this.state.roadmap = roadmap;
+    safeStore.set('roadmap_rpg', JSON.stringify(roadmap));
+    safeStore.set('answers_rpg', JSON.stringify(this.state.answers));
+    safeStore.set('q11_text_rpg', this.state.q11Text);
+
+    if (this.state.q11Text.trim()) {
+      // Phase 2: AI response — show loading screen with live typewriter
+      this.renderLoadingWithAI();
+
+      const profile = {
+        answers: this.state.answers,
+        professionName: roadmap.professionName,
+        rpgClass: roadmap.rpgClass,
+        primaryDim: roadmap.primaryDim,
+        secondaryDim: roadmap.secondaryDim,
+        dimensions: roadmap.dimensions,
+      };
+
+      // Try DeepSeek streaming first, fallback to local
+      await new Promise(resolve => {
+        let resolved = false;
+        const done = () => { if (!resolved) { resolved = true; resolve(); } };
+
+        if (DeepSeekClient.config.enabled) {
+          DeepSeekClient.generateQ11ResponseStream(
+            this.state.q11Text, profile,
+            // onChunk — typewriter animation
+            (chunk, fullText) => this.appendAIText(chunk),
+            // onComplete
+            (fullText) => {
+              if (fullText) {
+                this.state.q11AIResponse = fullText;
+                safeStore.set('q11_ai_rpg', fullText);
+              }
+              done();
+            },
+            // onError — fallback to local
+            () => {
+              const localR = generateLocalQ11Response(this.state.q11Text, roadmap.professionName, roadmap.primaryDim);
+              if (localR) {
+                this.state.q11AIResponse = localR;
+                safeStore.set('q11_ai_rpg', localR);
+              }
+              done();
+            }
+          );
+          // Timeout safety: if streaming hangs > 18s, bail
+          setTimeout(() => {
+            if (!this.state.q11AIResponse) {
+              const localR = generateLocalQ11Response(this.state.q11Text, roadmap.professionName, roadmap.primaryDim);
+              if (localR) { this.state.q11AIResponse = localR; safeStore.set('q11_ai_rpg', localR); }
+            }
+            done();
+          }, 18000);
+        } else {
+          const localR = generateLocalQ11Response(this.state.q11Text, roadmap.professionName, roadmap.primaryDim);
+          if (localR) { this.state.q11AIResponse = localR; safeStore.set('q11_ai_rpg', localR); }
+          // Brief delay so user sees the loading frame
+          setTimeout(done, 600);
+        }
+      });
+    }
+
+    this.state.isGenerating = false;
+    this.state.screen = 'result';
+    this.state.activeRpgTab = 'trench';
+    window.location.hash = 'result';
+    this.renderResult();
+  },
+
+  /** Live-typewriter: appends AI tokens to the loading screen */
+  appendAIText(chunk) {
+    const el = document.getElementById('ai-live-text');
+    if (el) {
+      el.textContent += chunk;
+      el.scrollTop = el.scrollHeight;
+    }
+  },
+
+  renderLoading() {
+    document.getElementById('app').innerHTML = `
+      <div class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">NOW LOADING...</div>
+        <div class="loading-sub">系统正在分析你的答题画像，匹配最佳生存路径</div>
+        <div style="margin-top:2rem;font-family:var(--font-mono);font-size:0.6rem;color:var(--text-muted);">
+          ████████░░░░░░░░ 50%
+        </div>
+      </div>
+    `;
+  },
+
+  /** Loading screen with live AI typewriter area */
+  renderLoadingWithAI() {
+    document.getElementById('app').innerHTML = `
+      <div class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">⚔ ANALYZING...</div>
+        <div class="loading-sub">规则引擎已匹配 · 正在召唤AI老陆回应你的灵魂留白</div>
+        <div class="pixel-box" style="margin-top:1.5rem;max-width:540px;width:100%;padding:1rem;text-align:left;min-height:80px;">
+          <div style="font-family:var(--font-pixel);font-size:0.45rem;color:var(--crt-gold);margin-bottom:0.5rem;">🤖 AI 正在回应...</div>
+          <div id="ai-live-text" style="font-size:0.85rem;line-height:1.9;color:var(--text-dim);white-space:pre-wrap;max-height:300px;overflow-y:auto;"></div>
+          <span class="cursor-blink" style="display:inline-block;width:8px;height:14px;background:var(--crt-green);vertical-align:middle;"></span>
+        </div>
+      </div>
+    `;
+  },
+
+  // ── Result Screen ──
+  renderResult() {
+    const rm = this.state.roadmap;
+    if (!rm) { this.renderTitle(); return; }
+
+    const lvl = rm.rpgLevel || 20;
+    const dims = rm.dimensions;
+    const matchCls = rm.matchQuality === 'high' ? 'match-excellent' : rm.matchQuality === 'medium' ? 'match-good' : 'match-ok';
+    const matchLabel = rm.matchQuality === 'high' ? 'SSR 极高匹配' : rm.matchQuality === 'medium' ? 'SR 高匹配' : 'R 复合型';
+
+    // Stat bar helper
+    const renderStatBar = (label, icon, value, cls) => {
+      const pct = Math.round(((value + 5) / 10) * 100);
+      return `
+        <div class="stat-row">
+          <span class="stat-icon">${icon} ${label}</span>
+          <div class="stat-bar-wrap"><div class="stat-bar-fill ${cls}" style="width:${pct}%"></div></div>
+          <span class="stat-val">${pct}/100</span>
+        </div>
+      `;
+    };
+
+    // Highlight primary & secondary dimensions
+    const isPrimary = (k) => k === rm.primaryDim;
+    const isSecondary = (k) => k === rm.secondaryDim;
+    const dimLabel = (k) => {
+      if (isPrimary(k)) return '★ ';
+      if (isSecondary(k)) return '☆ ';
+      return '';
+    };
+    const dimCls = (k) => {
+      if (isPrimary(k)) return 'str';
+      if (isSecondary(k)) return 'tec';
+      return 'def';
+    };
+
+    const statBars = `
+      ${renderStatBar('STR', `💪${dimLabel('务实')}`, dims.务实, dimCls('务实'))}
+      ${renderStatBar('VIT', `🛡️${dimLabel('求稳')}`, dims.求稳, dimCls('求稳'))}
+      ${renderStatBar('AGI', `⚡${dimLabel('破局')}`, dims.破局, dimCls('破局'))}
+      ${renderStatBar('INT', `🔧${dimLabel('技术')}`, dims.技术, dimCls('技术'))}
+      ${renderStatBar('CHA', `💎${dimLabel('人情')}`, dims.人情, dimCls('人情'))}
+    `;
+
+    // Build Q11 result section
+    let q11ResultHtml = '';
+    if (this.state.q11Text.trim()) {
+      q11ResultHtml = `
+        <div class="pixel-box pixel-box-gold q11-rpg-section" id="tab-q11result" style="display:none;">
+          <div class="rpg-panel-title">📜 灵魂卷轴 · 你的留白</div>
+          <div class="q11-rpg-quote">
+            <p>"${this.escapeHtml(this.state.q11Text)}"</p>
+          </div>
+          ${this.state.q11AIResponse ? `
+            <div class="q11-rpg-ai">
+              <div class="ai-badge-rpg">🤖 AI 深度回应 ${DeepSeekClient.config.enabled ? '(DeepSeek)' : '(本地引擎)'}</div>
+              <div class="rpg-panel-text">${this.state.q11AIResponse}</div>
+            </div>
+          ` : `
+            <div style="color:var(--text-muted);line-height:1.8;">
+              <p>你的文字已被系统加密存档。有些话不需要回应，写下来本身就已经是释放。</p>
+              ${!DeepSeekClient.config.enabled ? `<p style="margin-top:0.5rem;font-size:0.8rem;">💡 提示：配置 <a href="#" data-action="toggle-api" style="color:var(--crt-blue);">DeepSeek API Key</a>（￥0.003/次），可获得针对你的Q11留白的个性化AI深度回应。</p>` : ''}
+            </div>
+          `}
+        </div>
+      `;
+    }
+
+    document.getElementById('app').innerHTML = `
+      <div class="result-screen fade-in">
+        <!-- Character Header -->
+        <div class="pixel-box char-header">
+          <div class="char-level">⚔ CHARACTER SHEET ⚔</div>
+          <div class="char-name">Lv.${lvl} ${rm.professionName}</div>
+          <div class="char-class">${rm.rpgClass} · 主[${rm.primaryDim}] 副[${rm.secondaryDim}]</div>
+          <span class="char-match ${matchCls}">${matchLabel}</span>
+        </div>
+
+        <!-- RPG Tabs -->
+        <div class="rpg-tabs">
+          <button class="rpg-tab active" data-action="tab-trench">🏔 战壕</button>
+          <button class="rpg-tab" data-action="tab-skills">⚔ 技能</button>
+          <button class="rpg-tab" data-action="tab-armor">🛡 防具</button>
+          <button class="rpg-tab" data-action="tab-battlecry">🔥 定调</button>
+          <button class="rpg-tab" data-action="tab-stats">📊 属性</button>
+          ${q11ResultHtml ? '<button class="rpg-tab" data-action="tab-q11result">📜 卷轴</button>' : ''}
+        </div>
+
+        <!-- Tab Content: 战壕 -->
+        <div class="pixel-box pixel-box-green rpg-panel" id="tab-trench">
+          <div class="rpg-panel-title">🏔 生存战壕 · SURVIVAL TRENCH</div>
+          <div class="rpg-panel-text">${rm.生存战壕}</div>
+        </div>
+
+        <!-- Tab Content: 技能 -->
+        <div class="pixel-box rpg-panel" id="tab-skills" style="display:none;">
+          <div class="rpg-panel-title">⚔ 反杀技能 · COUNTER SKILLS</div>
+          <div class="action-list-rpg">
+            ${rm.反杀手段.map((a,i) => `
+              <div class="action-item-rpg">
+                <div class="action-num">${i+1}</div>
+                <div>
+                  <div class="action-item-title">${a.title}</div>
+                  <div class="action-item-body">${a.body}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Tab Content: 防具 -->
+        <div class="pixel-box pixel-box-green rpg-panel" id="tab-armor" style="display:none;">
+          <div class="rpg-panel-title">🛡 情感防弹衣 · EMOTIONAL ARMOR</div>
+          <div class="rpg-panel-text">${rm.情感防弹衣}</div>
+        </div>
+
+        <!-- Tab Content: 定调 -->
+        <div class="pixel-box pixel-box-red rpg-panel" id="tab-battlecry" style="display:none;">
+          <div class="rpg-panel-title">🔥 热血定调 · BATTLE CRY</div>
+          <div class="rpg-panel-text" style="font-size:1rem;">${rm.热血定调}</div>
+        </div>
+
+        <!-- Tab Content: 属性 -->
+        <div class="pixel-box stat-sheet" id="tab-stats" style="display:none;">
+          <div class="stat-sheet-title">📊 角色属性 · ATTRIBUTES</div>
+          ${statBars}
+          <div style="margin-top:1rem;padding-top:0.6rem;border-top:2px solid var(--border-dim);font-family:var(--font-mono);font-size:0.55rem;color:var(--text-muted);text-align:center;">
+            ★主属性 ☆副属性  STR:务实 VIT:求稳 AGI:破局 INT:技术 CHA:人情
+          </div>
+        </div>
+
+        ${q11ResultHtml}
+
+        <!-- Actions -->
+        <div class="result-actions-rpg">
+          <button class="pixel-btn" data-action="restart">🔄 重新开始</button>
+          <button class="pixel-btn btn-primary" onclick="RPGApp.shareResult()">📤 分享路书</button>
+          <button class="pixel-btn" data-action="toggle-api">⚙ API设置</button>
+        </div>
+
+        <!-- API Panel -->
+        <div class="pixel-box api-panel-rpg" id="api-panel-rpg">
+          <div style="font-family:var(--font-pixel);font-size:0.55rem;color:var(--crt-blue);margin-bottom:0.5rem;">⚙ DeepSeek API</div>
+          <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:0.75rem;line-height:1.6;">
+            Q11 的 AI 个性化深度回应。API Key 仅保存在你的浏览器中，不上传任何服务器。<br>
+            没有 Key？去 <a href="https://platform.deepseek.com" target="_blank" style="color:var(--crt-blue);">platform.deepseek.com</a> 免费注册。<br>
+            单次调用成本约 <strong style="color:var(--crt-gold);">￥0.003</strong>（不到半分钱）。
+          </p>
+          <div style="display:flex;gap:10px;">
+            <input type="password" id="api-key-input-rpg" placeholder="输入 DeepSeek API Key (sk-...)" value="${DeepSeekClient.config.apiKey}">
+            <button class="pixel-btn btn-primary" data-action="save-api-key">保存</button>
+          </div>
+          <p style="margin-top:0.5rem;font-size:0.75rem;color:${DeepSeekClient.config.enabled?'var(--crt-green)':'var(--text-muted)'};">
+            ${DeepSeekClient.config.enabled ? '✅ API 已配置' : '⚠️ 未配置 API Key，将使用本地引擎回应'}
+          </p>
+        </div>
+
+        <div style="text-align:center;margin-top:1.5rem;font-family:var(--font-ui);font-size:0.6rem;color:var(--text-muted);">
+          Ⓒ 2026 SURVIVAL ROADMAP · RPG EDITION · 纯匿名 · 数据仅存于浏览器
+        </div>
+      </div>
+    `;
+
+    window.scrollTo({ top:0, behavior:'smooth' });
+  },
+
+  switchTab(tabId) {
+    this.state.activeRpgTab = tabId;
+    // Update tab buttons
+    document.querySelectorAll('.rpg-tab').forEach(t => t.classList.remove('active'));
+    const tabBtn = document.querySelector(`[data-action="tab-${tabId}"]`);
+    if (tabBtn) tabBtn.classList.add('active');
+    // Show/hide panels
+    ['trench','skills','armor','battlecry','stats','q11result'].forEach(id => {
+      const panel = document.getElementById(`tab-${id}`);
+      if (panel) panel.style.display = id === tabId ? '' : 'none';
+    });
+  },
+
+  // ── API Management ──
+  saveApiKey() {
+    const input = document.getElementById('api-key-input-rpg');
+    if (!input) return;
+    const key = input.value.trim();
+    DeepSeekClient.setApiKey(key);
+    if (key) {
+      // Show brief feedback
+      const panel = document.getElementById('api-panel-rpg');
+      if (panel) {
+        const status = panel.querySelector('p:last-of-type');
+        if (status) {
+          status.textContent = '✅ API Key 已保存！退出结果页重新生成即可使用 AI 回应。';
+          status.style.color = 'var(--crt-green)';
+        }
+      }
+    }
+    this.renderResult();
+  },
+
+  toggleApiPanel() {
+    const panel = document.getElementById('api-panel-rpg');
+    if (panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  },
+
+  async retryAI() {
+    if (!DeepSeekClient.config.enabled || !this.state.q11Text.trim()) return;
+    try {
+      this.state.q11AIResponse = null;
+      const aiResp = await DeepSeekClient.generateQ11Response(this.state.q11Text, {
+        answers: this.state.answers,
+        professionName: this.state.roadmap.professionName,
+        rpgClass: this.state.roadmap.rpgClass,
+        primaryDim: this.state.roadmap.primaryDim,
+        secondaryDim: this.state.roadmap.secondaryDim,
+        dimensions: this.state.roadmap.dimensions
+      });
+      if (aiResp) {
+        this.state.q11AIResponse = aiResp;
+        safeStore.set('q11_ai_rpg', aiResp);
+      }
+    } catch (e) {
+      const localResp = generateLocalQ11Response(this.state.q11Text, this.state.roadmap.professionName, this.state.roadmap.primaryDim);
+      if (localResp) { this.state.q11AIResponse = localResp; safeStore.set('q11_ai_rpg', localResp); }
+    }
+    this.renderResult();
+  },
+
+  // ── Share ──
+  shareResult() {
+    const rm = this.state.roadmap;
+    if (!rm) return;
+    const shareText = `【2026届毕业生社会化全景诊断·RPG副本版】
+⚔ Lv.${rm.rpgLevel} ${rm.professionName}
+${rm.rpgClass} · 主[${rm.primaryDim}] 副[${rm.secondaryDim}]
+
+${rm.热血定调.replace(/<[^>]+>/g,'').substring(0,120)}……
+
+—— 免费诊断：${window.location.origin}${window.location.pathname}`;
+
+    if (navigator.share) {
+      navigator.share({ title:'我的2026届毕业生生存路书', text:shareText }).catch(()=>{});
+    } else {
+      navigator.clipboard.writeText(shareText).then(()=>{
+        // Brief flash on the share button
+        const btn = document.querySelector('[onclick="RPGApp.shareResult()"]');
+        if (btn) { const orig = btn.textContent; btn.textContent = '✅ 已复制!'; setTimeout(()=>{btn.textContent=orig;},1500); }
+      }).catch(()=>{ prompt('复制以下文本分享：', shareText); });
+    }
+  },
+
+  // ── Restart ──
+  restart() {
+    safeStore.clear();
+    window.location.hash = '';
+    this.state = {
+      screen: 'title', currentQuestion: 0, answers: {}, q11Text: '',
+      roadmap: null, q11AIResponse: null, isGenerating: false,
+      typedText: '', typingTimer: null, activeRpgTab: 'trench'
+    };
+    this.renderTitle();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  },
+
+  // ── Utils ──
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+};
+
+// ── Boot ──
+document.addEventListener('DOMContentLoaded', () => RPGApp.init());
+</script>
+</body>
+</html>
