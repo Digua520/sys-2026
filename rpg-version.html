@@ -911,12 +911,12 @@ const VECTOR_BOUNDS = (() => {
   const mins = Object.fromEntries(DIM_KEYS.map(k => [k, 0]));
   const maxs = Object.fromEntries(DIM_KEYS.map(k => [k, 0]));
   for (const opts of Object.values(VECTORS)) {
-    for (const vec of Object.values(opts)) {
-      DIM_KEYS.forEach((d, i) => {
-        if (vec[i] < 0) mins[d] += vec[i];
-        if (vec[i] > 0) maxs[d] += vec[i];
-      });
-    }
+    const vecs = Object.values(opts);
+    DIM_KEYS.forEach((d, i) => {
+      // Pick the most extreme option for THIS question — not sum all options
+      mins[d] += Math.min(...vecs.map(v => v[i]));
+      maxs[d] += Math.max(...vecs.map(v => v[i]));
+    });
   }
   return { mins, maxs };
 })();
@@ -1008,9 +1008,10 @@ function determineProfession(dims) {
 
 /* == PHASE 3: GENE SPLICING — Modular Text Fragments ===== */
 function seg(val) {
-  // Segment a normalized 0-100 score
-  if (val >= 65) return 'high';
-  if (val >= 35) return 'mid';
+  // Segment 0-100 → high/mid/low. Thresholds tuned so users spread
+  // across all 9 trench combos rather than clustering in 'mid'.
+  if (val >= 55) return 'high';
+  if (val >= 28) return 'mid';
   return 'low';
 }
 
