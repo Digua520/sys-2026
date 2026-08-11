@@ -716,9 +716,7 @@ body {
 //  Pixel RPG Edition — All-in-one HTML/CSS/JS
 // ============================================================
 
-// ╔══════════════════════════════════════════════════════════╗
-// ║  UTILITIES — Defensive primitives                       ║
-// ╚══════════════════════════════════════════════════════════╝
+/* == UTILITIES =========================================== */
 
 /** Safe sessionStorage wrapper — never throws in private browsing */
 const safeStore = {
@@ -891,10 +889,7 @@ const Q11 = {
   placeholder: '如果不想写，也可以直接跳过。没关系，做你自己就好，你值得。'
 };
 
-// ╔══════════════════════════════════════════════════════════╗
-// ║  PHASE 1: 5-DIMENSION VECTOR SCORING                   ║
-// ║  Each option → [务实,求稳,破局,技术,人情] delta        ║
-// ╚══════════════════════════════════════════════════════════╝
+/* == PHASE 1: 5-DIM VECTOR SCORING ======================= */
 const VECTORS = {
   'q1a': { A:[-2, 0, 0, 1,-1], B:[ 0, 2,-1, 0, 0], C:[ 3, 0, 1, 0, 1] },
   'q1b': { A:[-1,-2, 2, 1, 0], B:[ 2, 0, 1, 2, 1], C:[ 0, 3,-1,-1, 0] },
@@ -948,10 +943,7 @@ function compute5Dims(answers) {
   return { raw, norm };
 }
 
-// ╔══════════════════════════════════════════════════════════╗
-// ║  PHASE 2: PRIMARY-SECONDARY PROFESSION MATRIX          ║
-// ║  5 × 4 = 20 unique professions                         ║
-// ╚══════════════════════════════════════════════════════════╝
+/* == PHASE 2: PROFESSION MATRIX (5×4=20) ================== */
 const PROFESSION_MATRIX = {
   '务实': {
     '求稳': { name:'生存建筑师', rpgClass:'务实·求稳 系', level:42, desc:'在稳定的框架内，一砖一瓦搭建生存基础' },
@@ -1014,9 +1006,7 @@ function determineProfession(dims) {
   };
 }
 
-// ╔══════════════════════════════════════════════════════════╗
-// ║  PHASE 3: MODULAR TEXT FRAGMENTS (Gene Splicing)       ║
-// ╚══════════════════════════════════════════════════════════╝
+/* == PHASE 3: GENE SPLICING — Modular Text Fragments ===== */
 function seg(val) {
   // Segment a normalized 0-100 score
   if (val >= 65) return 'high';
@@ -1116,9 +1106,7 @@ const FRAGMENTS = {
   },
 };
 
-// ╔══════════════════════════════════════════════════════════╗
-// ║  ASSEMBLY ENGINE                                       ║
-// ╚══════════════════════════════════════════════════════════╝
+/* == ASSEMBLY ENGINE ===================================== */
 // Resolve a 2-level nested lookup with fallback.
 // e.g. pick('trench', `务实_${seg}`, `求稳_${seg}`) → falls back to mid/mid → hardcoded string
 const pick2 = (group, k1, k2, fallback) =>
@@ -1170,9 +1158,7 @@ function assembleReport(dims, profession, answers) {
   return { 生存战壕:战壕, 反杀手段, 情感防弹衣, 热血定调 };
 }
 
-// ╔══════════════════════════════════════════════════════════╗
-// ║  MAIN ENTRY: generateRoadmap                            ║
-// ╚══════════════════════════════════════════════════════════╝
+/* == MAIN ENTRY: generateRoadmap ========================= */
 function generateRoadmap(answers) {
   const dims = compute5Dims(answers);
   const profession = determineProfession(dims);
