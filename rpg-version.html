@@ -1886,7 +1886,7 @@ const RPGApp = {
 
     // Stat bar helper
     const renderStatBar = (label, icon, value, cls) => {
-      const pct = Math.round(((value + 5) / 10) * 100);
+      const pct = Math.round(value); // value is already 0–100 from compute5Dims
       return `
         <div class="stat-row">
           <span class="stat-icon">${icon} ${label}</span>
