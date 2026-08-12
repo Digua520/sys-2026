@@ -525,7 +525,7 @@ body {
   display: flex; align-items: center; gap: 8px; margin-bottom: 0.65rem;
 }
 .stat-icon {
-  font-family: var(--font-mono); font-size: 0.6rem; width: 44px;
+  font-family: var(--font-mono); font-size: 0.55rem; width: 74px;
   flex-shrink: 0; color: var(--text-dim); font-weight: 700;
 }
 .stat-bar-wrap {
@@ -733,7 +733,7 @@ body {
   .stat-sheet { padding: 0.8rem; }
   .stat-sheet-title { font-size: 0.5rem; }
   .stat-row { gap: 3px; margin-bottom: 0.5rem; }
-  .stat-icon { width: 30px; font-size: 0.42rem; }
+  .stat-icon { width: 58px; font-size: 0.38rem; }
   .stat-bar-wrap { height: 12px; }
   .stat-val { width: 30px; font-size: 0.45rem; }
 
@@ -761,9 +761,10 @@ body {
   /* API input group — stack */
   .api-input-group { flex-direction: column; }
 
-  /* Title screen — tighter padding, hide decorative stars */
+  /* Title screen — tighter padding, hide decorative stars, hide keyboard hint */
   .title-screen { padding: 1rem; }
   .title-stars { display: none; }
+  .desktop-only { display: none; }
 
   /* API panel */
   .api-panel-rpg { padding: 0.8rem; }
@@ -987,7 +988,7 @@ const Q11 = {
   id: 11, title: '灵魂留白',
   scenario: '10道灵魂拷问，一通成人世界的生存体检。你或许被戳中了痛点，或许被骂醒了，或许终于找到了和这个巨大草台班子世界相处的解药。',
   prompt: '隐私的加密大门已经为你锁好。请在这里，写下你此时此刻最真实的感触、你对过去的释怀、或者你接下来哪怕最微小的一个行动计划……',
-  placeholder: '如果不想写，也可以直接跳过。没关系，做你自己就好，你值得。'
+  placeholder: '写点什么呢……骂两句、许个愿、给自己定个deadline都行。实在不想写就跳过，不丢人。'
 };
 
 /* == PHASE 1: 5-DIM VECTOR SCORING ======================= */
@@ -1429,7 +1430,7 @@ const RPGApp = {
     roadmap: null,
     q11AIResponse: null,
     isGenerating: false,
-    activeRpgTab: 'trench'
+    activeRpgTab: 'stats'
   },
 
   // ── Init ──
@@ -1543,10 +1544,10 @@ const RPGApp = {
         </button>
 
         <div class="title-footer" style="margin-top:2rem;">
-          Ⓒ 2026 SURVIVAL ROADMAP SYSTEM<br>
+          © 2026 SURVIVAL ROADMAP SYSTEM<br>
           <span style="color:var(--text-muted);">10道核心副本 + 1道灵魂留白</span>
         </div>
-        <div class="title-footer" style="margin-top:1rem;color:var(--text-muted);">
+        <div class="title-footer desktop-only" style="margin-top:1rem;color:var(--text-muted);">
           [ ENTER 或 点击 开始游戏 ]
         </div>
       </div>
@@ -1664,9 +1665,9 @@ const RPGApp = {
             ${q.scenario}
           </div>
 
-          ${questionsHtml}
-
           ${q.note ? `<div class="system-note-rpg">${q.note}</div>` : ''}
+
+          ${questionsHtml}
         </div>
 
         <div class="rpg-nav">
@@ -1855,15 +1856,16 @@ const RPGApp = {
 
   /** Loading screen with live AI typewriter area */
   renderLoadingWithAI() {
+    const useAI = DeepSeekClient.config.enabled;
     document.getElementById('app').innerHTML = `
       <div class="loading-screen">
         <div class="loading-spinner"></div>
         <div class="loading-text">⚔ ANALYZING...</div>
-        <div class="loading-sub">规则引擎已匹配 · 正在召唤AI老陆回应你的灵魂留白</div>
+        <div class="loading-sub">${useAI ? '规则引擎已锁定 · AI老陆正在书写回应……' : '规则引擎已锁定 · 本地智囊正在生成回应……'}</div>
         <div class="pixel-box" style="margin-top:1.5rem;max-width:540px;width:100%;padding:1rem;text-align:left;min-height:80px;">
-          <div style="font-family:var(--font-pixel);font-size:0.45rem;color:var(--crt-gold);margin-bottom:0.5rem;">🤖 AI 正在回应...</div>
+          <div style="font-family:var(--font-pixel);font-size:0.45rem;color:var(--crt-gold);margin-bottom:0.5rem;">${useAI ? '🤖 AI 实时回应中...' : '📝 生成中...'}</div>
           <div id="ai-live-text" style="font-size:0.85rem;line-height:1.9;color:var(--text-dim);white-space:pre-wrap;max-height:300px;overflow-y:auto;"></div>
-          <span class="cursor-blink" style="display:inline-block;width:8px;height:14px;background:var(--crt-green);vertical-align:middle;"></span>
+          ${useAI ? '<span class="cursor-blink" style="display:inline-block;width:8px;height:14px;background:var(--crt-green);vertical-align:middle;"></span>' : ''}
         </div>
       </div>
     `;
@@ -1906,11 +1908,11 @@ const RPGApp = {
     };
 
     const statBars = `
-      ${renderStatBar('STR', `💪${dimLabel('务实')}`, dims.务实, dimCls('务实'))}
-      ${renderStatBar('VIT', `🛡️${dimLabel('求稳')}`, dims.求稳, dimCls('求稳'))}
-      ${renderStatBar('AGI', `⚡${dimLabel('破局')}`, dims.破局, dimCls('破局'))}
-      ${renderStatBar('INT', `🔧${dimLabel('技术')}`, dims.技术, dimCls('技术'))}
-      ${renderStatBar('CHA', `💎${dimLabel('人情')}`, dims.人情, dimCls('人情'))}
+      ${renderStatBar('STR 务实', `💪${dimLabel('务实')}`, dims.务实, dimCls('务实'))}
+      ${renderStatBar('VIT 求稳', `🛡️${dimLabel('求稳')}`, dims.求稳, dimCls('求稳'))}
+      ${renderStatBar('AGI 破局', `⚡${dimLabel('破局')}`, dims.破局, dimCls('破局'))}
+      ${renderStatBar('INT 技术', `🔧${dimLabel('技术')}`, dims.技术, dimCls('技术'))}
+      ${renderStatBar('CHA 人情', `💎${dimLabel('人情')}`, dims.人情, dimCls('人情'))}
     `;
 
     // Build Q11 result section
@@ -1950,16 +1952,16 @@ const RPGApp = {
 
         <!-- RPG Tabs -->
         <div class="rpg-tabs">
-          <button class="rpg-tab active" data-action="tab-trench">🏔 战壕</button>
+          <button class="rpg-tab" data-action="tab-trench">🏔 战壕</button>
           <button class="rpg-tab" data-action="tab-skills">⚔ 技能</button>
           <button class="rpg-tab" data-action="tab-armor">🛡 防具</button>
           <button class="rpg-tab" data-action="tab-battlecry">🔥 定调</button>
-          <button class="rpg-tab" data-action="tab-stats">📊 属性</button>
+          <button class="rpg-tab active" data-action="tab-stats">📊 属性</button>
           ${q11ResultHtml ? '<button class="rpg-tab" data-action="tab-q11result">📜 卷轴</button>' : ''}
         </div>
 
         <!-- Tab Content: 战壕 -->
-        <div class="pixel-box pixel-box-green rpg-panel" id="tab-trench">
+        <div class="pixel-box pixel-box-green rpg-panel" id="tab-trench" style="display:none;">
           <div class="rpg-panel-title">🏔 生存战壕 · SURVIVAL TRENCH</div>
           <div class="rpg-panel-text">${rm.生存战壕}</div>
         </div>
@@ -1993,11 +1995,11 @@ const RPGApp = {
         </div>
 
         <!-- Tab Content: 属性 -->
-        <div class="pixel-box stat-sheet" id="tab-stats" style="display:none;">
+        <div class="pixel-box stat-sheet" id="tab-stats">
           <div class="stat-sheet-title">📊 角色属性 · ATTRIBUTES</div>
           ${statBars}
           <div style="margin-top:1rem;padding-top:0.6rem;border-top:2px solid var(--border-dim);font-family:var(--font-mono);font-size:0.55rem;color:var(--text-muted);text-align:center;">
-            ★主属性 ☆副属性  STR:务实 VIT:求稳 AGI:破局 INT:技术 CHA:人情
+            ★ 主属性  ☆ 副属性
           </div>
         </div>
 
@@ -2028,7 +2030,7 @@ const RPGApp = {
         </div>
 
         <div style="text-align:center;margin-top:1.5rem;font-family:var(--font-ui);font-size:0.6rem;color:var(--text-muted);">
-          Ⓒ 2026 SURVIVAL ROADMAP · RPG EDITION · 纯匿名 · 数据仅存于浏览器
+          © 2026 SURVIVAL ROADMAP · RPG EDITION · 纯匿名 · 数据仅存于浏览器
         </div>
       </div>
     `;
@@ -2101,7 +2103,7 @@ const RPGApp = {
 
 ${truncated}
 
-—— 免费诊断：${window.location.origin}${window.location.pathname}`;
+你也来测测你的隐藏职业 → ${window.location.origin}${window.location.pathname}`;
 
     if (navigator.share) {
       navigator.share({ title:'我的2026届毕业生生存路书', text:shareText }).catch(()=>{});
@@ -2120,7 +2122,7 @@ ${truncated}
     this.state = {
       screen: 'title', currentQuestion: 0, answers: {}, q11Text: '',
       roadmap: null, q11AIResponse: null, isGenerating: false,
-      activeRpgTab: 'trench'
+      activeRpgTab: 'stats'
     };
     this.renderTitle();
     window.scrollTo({ top:0, behavior:'smooth' });
