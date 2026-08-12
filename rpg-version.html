@@ -1181,10 +1181,12 @@ function determineProfession(dims) {
 
 /* == PHASE 3: GENE SPLICING — Modular Text Fragments ===== */
 function seg(val) {
-  // Segment 0-100 → high/mid/low. Thresholds tuned so users spread
-  // across all 9 trench combos rather than clustering in 'mid'.
-  if (val >= 55) return 'high';
-  if (val >= 28) return 'mid';
+  // Segment 0–100. Thresholds calibrated against actual VECTOR_BOUNDS
+  // so typical users spread across all 9 trench combos.
+  // 务实: raw range ~[-16,25], need raw≥13 for high (top ~30%)
+  // 求稳: raw range ~[-5,13],  need raw≥8  for high (top ~28%)
+  if (val >= 70) return 'high';
+  if (val >= 35) return 'mid';
   return 'low';
 }
 
