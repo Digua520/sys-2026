@@ -2091,11 +2091,15 @@ const RPGApp = {
   shareResult() {
     const rm = this.state.roadmap;
     if (!rm) return;
+    const stripped = rm.热血定调.replace(/<[^>]+>/g, '');
+    const truncated = stripped.length > 180
+      ? stripped.substring(0, 180).replace(/\s+$/,'') + '…'
+      : stripped;
     const shareText = `【2026届毕业生社会化全景诊断·RPG副本版】
-⚔ Lv.${rm.rpgLevel} ${rm.professionName}
-${rm.rpgClass} · 主[${rm.primaryDim}] 副[${rm.secondaryDim}]
+⚔ Lv.${rm.rpgLevel} ${rm.professionName} · ${rm.rpgClass}
+主[${rm.primaryDim}] 副[${rm.secondaryDim}]
 
-${rm.热血定调.replace(/<[^>]+>/g,'').substring(0,120)}……
+${truncated}
 
 —— 免费诊断：${window.location.origin}${window.location.pathname}`;
 
@@ -2103,7 +2107,6 @@ ${rm.热血定调.replace(/<[^>]+>/g,'').substring(0,120)}……
       navigator.share({ title:'我的2026届毕业生生存路书', text:shareText }).catch(()=>{});
     } else {
       navigator.clipboard.writeText(shareText).then(()=>{
-        // Brief flash on the share button
         const btn = document.querySelector('[onclick="RPGApp.shareResult()"]');
         if (btn) { const orig = btn.textContent; btn.textContent = '✅ 已复制!'; setTimeout(()=>{btn.textContent=orig;},1500); }
       }).catch(()=>{ prompt('复制以下文本分享：', shareText); });
