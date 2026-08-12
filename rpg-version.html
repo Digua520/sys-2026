@@ -91,6 +91,20 @@ body {
   background: transparent;
   animation: crtFlicker 8s infinite;
 }
+/* CRT power-on flash — fires once on page load */
+.crt-power-on {
+  position: fixed; inset: 0; pointer-events: none; z-index: 10000;
+  background: white;
+  animation: powerOn 0.4s ease-out forwards;
+}
+@keyframes powerOn {
+  0%   { opacity: 0.8; }
+  20%  { opacity: 0.3; }
+  40%  { opacity: 0.6; }
+  60%  { opacity: 0.1; }
+  80%  { opacity: 0.25; }
+  100% { opacity: 0; }
+}
 @keyframes crtFlicker {
   0%, 100% { background: transparent; }
   0.5% { background: rgba(255,255,255,0.03); }
@@ -267,6 +281,28 @@ body {
   font-family: var(--font-mono); font-size: 0.6rem;
   color: rgba(255,255,255,0.12);
 }
+
+/* Floating pixel particles behind title */
+@keyframes floatUp {
+  0%   { transform: translateY(0) scale(1); opacity: 0.7; }
+  50%  { opacity: 1; }
+  100% { transform: translateY(-60vh) scale(0.3); opacity: 0; }
+}
+@keyframes driftRight {
+  0%   { transform: translateX(0) translateY(0); opacity: 0.6; }
+  100% { transform: translateX(50px) translateY(-30px); opacity: 0; }
+}
+.pixel-particle {
+  position: absolute; pointer-events: none;
+  width: 4px; height: 4px; background: var(--crt-blue);
+  box-shadow: 0 0 4px var(--crt-blue);
+  animation: floatUp 4s ease-out infinite;
+}
+.pixel-particle:nth-child(odd) { background: var(--crt-green); box-shadow: 0 0 4px var(--crt-green); animation-duration: 5s; }
+.pixel-particle:nth-child(3n) { background: var(--crt-gold); box-shadow: 0 0 4px var(--crt-gold); animation-duration: 3.5s; animation-delay: 1s; }
+.pixel-particle:nth-child(4n+1) { animation-delay: 2s; }
+.pixel-particle:nth-child(5n+2) { animation-delay: 0.5s; }
+.pixel-particle:nth-child(6n) { animation-delay: 3s; }
 
 /* ============================================================
    QUESTION SCREEN
@@ -650,8 +686,46 @@ body {
 }
 .fade-in { animation: fadeInUp 0.3s ease-out; }
 
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.slide-in { animation: slideInRight 0.25s ease-out; }
+
+/* Option select blip */
+@keyframes selectBlip {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+.rpg-command.selected {
+  animation: selectBlip 0.15s ease-out;
+}
+
+/* Tab panel crossfade */
+.rpg-panel, .stat-sheet, .q11-rpg-section {
+  transition: opacity 0.15s ease-out;
+}
+
+/* Progress bar shimmer */
+@keyframes barShimmer {
+  0%   { filter: brightness(1); }
+  50%  { filter: brightness(1.3); }
+  100% { filter: brightness(1); }
+}
+.progress-fill {
+  animation: barShimmer 2s ease-in-out infinite;
+}
+
 @keyframes statReveal {
   from { width: 0% !important; }
+}
+
+@keyframes loadProgress {
+  0%   { width: 0%; }
+  30%  { width: 35%; }
+  60%  { width: 65%; }
+  100% { width: 92%; }
 }
 
 /* ============================================================
@@ -777,17 +851,13 @@ body {
 
 /* Accessibility — disable animations for users with motion sensitivity */
 @media (prefers-reduced-motion: reduce) {
-  .scanlines,
-  .crt-flicker,
-  .start-btn,
-  .dialog-badge.boss,
-  .loading-spinner,
-  .loading-spinner::after,
-  .cursor-blink,
-  .dialog-pointer,
-  .loading-text,
-  .generating-spinner,
-  .fade-in {
+  .scanlines, .crt-flicker, .crt-power-on,
+  .start-btn, .dialog-badge.boss,
+  .loading-spinner, .loading-spinner::after,
+  .cursor-blink, .dialog-pointer, .loading-text,
+  .generating-spinner, .fade-in, .slide-in,
+  .progress-fill, .loading-bar-fill,
+  .pixel-particle, .rpg-command.selected {
     animation: none !important;
     transition: none !important;
   }
@@ -805,6 +875,7 @@ body {
 <body>
 
 <!-- CRT Overlays -->
+<div class="crt-power-on"></div>
 <div class="scanlines"></div>
 <div class="crt-vignette"></div>
 <div class="crt-flicker"></div>
@@ -1526,6 +1597,14 @@ const RPGApp = {
         <div class="title-stars" style="top:20%;right:15%;">✦ ✦</div>
         <div class="title-stars" style="bottom:25%;left:20%;">✦ ✦ ✦</div>
         <div class="title-stars" style="bottom:15%;right:10%;">✦</div>
+        <div class="pixel-particle" style="top:70%;left:15%;"></div>
+        <div class="pixel-particle" style="top:80%;left:30%;"></div>
+        <div class="pixel-particle" style="top:75%;left:55%;"></div>
+        <div class="pixel-particle" style="top:85%;left:70%;"></div>
+        <div class="pixel-particle" style="top:65%;left:80%;"></div>
+        <div class="pixel-particle" style="top:90%;left:45%;"></div>
+        <div class="pixel-particle" style="top:70%;left:90%;"></div>
+        <div class="pixel-particle" style="top:60%;left:65%;"></div>
 
         <div class="title-logo">
           2026届毕业生<br>
@@ -1645,7 +1724,7 @@ const RPGApp = {
     }
 
     document.getElementById('app').innerHTML = `
-      <div class="question-screen fade-in">
+      <div class="question-screen slide-in">
         <div class="pixel-progress">
           <span style="font-family:var(--font-pixel);font-size:0.55rem;color:var(--crt-blue);">Lv.${cur}</span>
           <div class="progress-track">
@@ -1706,7 +1785,7 @@ const RPGApp = {
   renderQ11() {
     const totalSteps = QUESTIONS.length;
     document.getElementById('app').innerHTML = `
-      <div class="question-screen fade-in">
+      <div class="question-screen slide-in">
         <div class="pixel-progress">
           <span style="font-family:var(--font-pixel);font-size:0.6rem;color:var(--crt-gold);">★</span>
           <div class="progress-track">
@@ -1847,11 +1926,23 @@ const RPGApp = {
         <div class="loading-spinner"></div>
         <div class="loading-text">NOW LOADING...</div>
         <div class="loading-sub">系统正在分析你的答题画像，匹配最佳生存路径</div>
-        <div style="margin-top:2rem;font-family:var(--font-mono);font-size:0.6rem;color:var(--text-muted);">
-          ████████░░░░░░░░ 50%
+        <div style="margin-top:2rem;width:260px;">
+          <div class="progress-track" style="height:10px;">
+            <div class="progress-fill loading-bar-fill" style="width:0%;animation:loadProgress 1.5s ease-out forwards;"></div>
+          </div>
+          <div class="loading-bar-label" style="font-family:var(--font-mono);font-size:0.55rem;color:var(--text-muted);text-align:center;margin-top:6px;">0%</div>
         </div>
       </div>
     `;
+    // Animate the percentage counter
+    let p = 0;
+    const lbl = document.querySelector('.loading-bar-label');
+    const iv = setInterval(() => {
+      if (p >= 95) { clearInterval(iv); return; }
+      p += Math.random() * 18 + 3;
+      if (p > 95) p = 95;
+      if (lbl) lbl.textContent = Math.floor(p) + '%';
+    }, 200);
   },
 
   /** Loading screen with live AI typewriter area */
@@ -1882,13 +1973,13 @@ const RPGApp = {
     const matchLabel = rm.matchQuality === 'high' ? 'SSR 极高匹配' : rm.matchQuality === 'medium' ? 'SR 高匹配' : 'R 复合型';
 
     // Stat bar helper
-    const renderStatBar = (label, icon, value, cls) => {
-      const pct = Math.round(value); // value is already 0–100 from compute5Dims
+    const renderStatBar = (label, icon, value, cls, idx) => {
+      const pct = Math.round(value);
       return `
         <div class="stat-row">
           <span class="stat-icon">${icon} ${label}</span>
-          <div class="stat-bar-wrap"><div class="stat-bar-fill ${cls}" style="width:${pct}%"></div></div>
-          <span class="stat-val">${pct}/100</span>
+          <div class="stat-bar-wrap"><div class="stat-bar-fill ${cls}" id="stat-bar-${idx}" style="width:0%"></div></div>
+          <span class="stat-val" id="stat-val-${idx}">0/100</span>
         </div>
       `;
     };
@@ -1908,11 +1999,11 @@ const RPGApp = {
     };
 
     const statBars = `
-      ${renderStatBar('STR 务实', `💪${dimLabel('务实')}`, dims.务实, dimCls('务实'))}
-      ${renderStatBar('VIT 求稳', `🛡️${dimLabel('求稳')}`, dims.求稳, dimCls('求稳'))}
-      ${renderStatBar('AGI 破局', `⚡${dimLabel('破局')}`, dims.破局, dimCls('破局'))}
-      ${renderStatBar('INT 技术', `🔧${dimLabel('技术')}`, dims.技术, dimCls('技术'))}
-      ${renderStatBar('CHA 人情', `💎${dimLabel('人情')}`, dims.人情, dimCls('人情'))}
+      ${renderStatBar('STR 务实', `💪${dimLabel('务实')}`, dims.务实, dimCls('务实'), 0)}
+      ${renderStatBar('VIT 求稳', `🛡️${dimLabel('求稳')}`, dims.求稳, dimCls('求稳'), 1)}
+      ${renderStatBar('AGI 破局', `⚡${dimLabel('破局')}`, dims.破局, dimCls('破局'), 2)}
+      ${renderStatBar('INT 技术', `🔧${dimLabel('技术')}`, dims.技术, dimCls('技术'), 3)}
+      ${renderStatBar('CHA 人情', `💎${dimLabel('人情')}`, dims.人情, dimCls('人情'), 4)}
     `;
 
     // Build Q11 result section
@@ -2036,6 +2127,20 @@ const RPGApp = {
     `;
 
     window.scrollTo({ top:0, behavior:'smooth' });
+
+    // Animate stat bars — fill from 0 with staggered delay
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const dims = rm.dimensions;
+        const vals = [dims.务实, dims.求稳, dims.破局, dims.技术, dims.人情];
+        vals.forEach((v, i) => {
+          const bar = document.getElementById(`stat-bar-${i}`);
+          const val = document.getElementById(`stat-val-${i}`);
+          if (bar) bar.style.width = `${Math.round(v)}%`;
+          if (val) val.textContent = `${Math.round(v)}/100`;
+        });
+      }, 50);
+    });
   },
 
   switchTab(tabId) {
