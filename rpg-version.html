@@ -1429,8 +1429,6 @@ const RPGApp = {
     roadmap: null,
     q11AIResponse: null,
     isGenerating: false,
-    typedText: '',     // for typewriter
-    typingTimer: null,
     activeRpgTab: 'trench'
   },
 
@@ -2119,7 +2117,7 @@ ${rm.热血定调.replace(/<[^>]+>/g,'').substring(0,120)}……
     this.state = {
       screen: 'title', currentQuestion: 0, answers: {}, q11Text: '',
       roadmap: null, q11AIResponse: null, isGenerating: false,
-      typedText: '', typingTimer: null, activeRpgTab: 'trench'
+      activeRpgTab: 'trench'
     };
     this.renderTitle();
     window.scrollTo({ top:0, behavior:'smooth' });
